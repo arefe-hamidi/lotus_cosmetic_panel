@@ -3,7 +3,7 @@
 import DashboardHeader from "./DashboardHeader/DashboardHeader";
 import Sidebar from "./Sidebar/Sidebar";
 import { SidebarProvider } from "./Sidebar/SidebarContext";
-import type { iLocale } from "../Entity/Locale/types";
+import type { iLocale } from "../../Entity/Locale/types";
 
 interface iProps {
   children: React.ReactNode;
