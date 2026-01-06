@@ -1,6 +1,6 @@
 "use client";
 
-import { NEXT_PUBLIC_BASE_URL } from "@/lib/configs/constants";
+import { NEXT_PUBLIC_API_BASE_URL } from "@/lib/configs/constants";
 
 interface ProxyFetchOptions extends Omit<RequestInit, "body"> {
   body?: unknown;
@@ -21,7 +21,7 @@ export async function proxyFetch(
 
   const url = endpoint.startsWith("http")
     ? endpoint
-    : `${NEXT_PUBLIC_BASE_URL}${endpoint}`;
+    : `${NEXT_PUBLIC_API_BASE_URL}${endpoint}`;
 
   const response = await fetch(url, {
     ...restOptions,
