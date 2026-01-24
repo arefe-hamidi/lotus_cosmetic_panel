@@ -4,18 +4,14 @@ import type { iDictionaryBaseStructure } from "@/Components/Entity/Locale/types"
 const en = {
   nav: {
     dashboard: "Dashboard",
-    about: "About",
-    products: "Products",
-    contact: "Contact",
+category: "Category",
   },
 } satisfies iDictionaryBaseStructure;
 
 const fa = {
   nav: {
     dashboard: "داشبورد",
-    about: "درباره ما",
-    products: "محصولات",
-    contact: "تماس با ما",
+    category: "دسته بندی",
   },
 } satisfies typeof en;
 

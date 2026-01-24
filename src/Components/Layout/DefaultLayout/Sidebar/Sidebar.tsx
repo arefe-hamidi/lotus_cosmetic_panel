@@ -2,13 +2,13 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Info, Package, Mail, LayoutDashboard } from "lucide-react";
-
+import { Package, LayoutDashboard } from "lucide-react";
 import type { iLocale } from "@/Components/Entity/Locale/types";
 import { getDictionary } from "./i18n";
 import { cn } from "@/Components/Shadcn/lib/utils";
 import { Separator } from "@/Components/Shadcn/separator";
 import { useSidebar } from "./SidebarContext";
+import { appRoutes } from "@/lib/routes/appRoutes";
 
 interface iProps {
   locale: iLocale;
@@ -18,24 +18,13 @@ interface iProps {
 const navItems = [
   {
     title: "dashboard",
-    href: (locale: string) => `/${locale}`,
+    href: (locale: iLocale) => appRoutes.dashboard.home(locale),
     icon: LayoutDashboard,
   },
-
   {
-    title: "about",
-    href: (locale: string) => `/${locale}/about`,
-    icon: Info,
-  },
-  {
-    title: "products",
-    href: (locale: string) => `/${locale}/products`,
+    title: "category",
+    href: (locale: iLocale) => appRoutes.dashboard.category(locale),
     icon: Package,
-  },
-  {
-    title: "contact",
-    href: (locale: string) => `/${locale}/contact`,
-    icon: Mail,
   },
 ];
 
@@ -56,7 +45,10 @@ export default function Sidebar({ locale, onLinkClick }: iProps) {
         {navItems.map((item) => {
           const Icon = item.icon;
           const href = item.href(locale);
-          const isActive = pathname === href || pathname.startsWith(`${href}/`);
+          const isActive =
+            item.title === "dashboard"
+              ? pathname === href || pathname === `${href}/`
+              : pathname === href || pathname.startsWith(`${href}/`);
           const navKey = item.title as keyof typeof dictionary.nav;
 
           return (

@@ -11,5 +11,6 @@ export const appRoutes = {
     home: (locale: iLocale) => `/${locale}/dashboard`,
     settings: (locale: iLocale, tab?: string) =>
       tabRoute(`/${locale}/dashboard/settings`, tab),
+    category: (locale: iLocale) => `/${locale}/dashboard/category`,
   },
 } as const;

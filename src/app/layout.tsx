@@ -5,6 +5,7 @@ import "./globals.css";
 import "@/Components/Entity/Theme/styles.css";
 import ThemeInit from "@/Components/Entity/Theme/Components/ThemeInit";
 import { getLayoutTheme } from "@/Components/Entity/Theme/utils.server";
+import QueryProvider from "@/lib/query/QueryProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -35,7 +36,7 @@ export default async function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <ThemeInit />
-        {children}
+        <QueryProvider>{children}</QueryProvider>
       </body>
     </html>
   );
