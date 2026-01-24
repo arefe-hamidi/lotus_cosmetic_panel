@@ -1,6 +1,6 @@
 "use client";
 
-import { Menu, ChevronLeft, ChevronRight } from "lucide-react";
+import { Menu, ChevronLeft, ChevronRight, LogOut } from "lucide-react";
 import { useState } from "react";
 
 import type { iLocale } from "@/Components/Entity/Locale/types";
@@ -13,6 +13,7 @@ import { Sheet, SheetContent, SheetTrigger } from "@/Components/Shadcn/sheet";
 import { cn } from "@/Components/Shadcn/lib/utils";
 import Sidebar from "../Sidebar/Sidebar";
 import { useSidebar } from "../Sidebar/SidebarContext";
+import { logoutAction } from "@/lib/api/auth/actions";
 
 interface iProps {
   locale: iLocale;
@@ -62,6 +63,16 @@ export default function DashboardHeader({ locale }: iProps) {
         <div className="ml-auto flex items-center gap-2">
           <LanguageSwitcher appearance="select" />
           <ThemeSwitcher />
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => logoutAction()}
+            title={dictionary.logout}
+            className="text-destructive hover:bg-destructive/10 hover:text-destructive"
+          >
+            <LogOut className="h-5 w-5" />
+            <span className="sr-only">{dictionary.logout}</span>
+          </Button>
         </div>
       </div>
     </header>

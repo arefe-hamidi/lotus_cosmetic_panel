@@ -3,10 +3,12 @@ import type { iDictionaryBaseStructure } from "@/Components/Entity/Locale/types"
 
 const en = {
   logo: "Lotus Cosmetic Panel",
+  logout: "Logout",
 } satisfies iDictionaryBaseStructure;
 
 const fa = {
   logo: "لوتوس کازمتیک پنل",
+  logout: "خروج",
 } satisfies typeof en;
 
 export type iDictionary = typeof en;
