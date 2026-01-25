@@ -95,7 +95,7 @@ export default function CategoryForm({
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="none">None</SelectItem>
-                {categories
+                { categories && categories.length > 0 && categories
                   ?.filter((c) => c.id !== editingCategory?.id)
                   .map((category) => (
                     <SelectItem

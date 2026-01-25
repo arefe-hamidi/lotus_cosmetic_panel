@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Plus } from "lucide-react";
+import { toast } from "sonner";
 
 import type { iLocale } from "@/Components/Entity/Locale/types";
 import { getDictionary } from "./i18n";
@@ -78,9 +79,11 @@ export default function Category({ locale }: iProps) {
       } else {
         await createMutation.mutateAsync(formData);
       }
+      toast.success(dictionary.messages.success);
       setIsOpen(false);
     } catch (error) {
       console.error("Failed to save category:", error);
+      toast.error(dictionary.messages.error);
     }
   };
 
@@ -88,8 +91,10 @@ export default function Category({ locale }: iProps) {
     if (confirm(dictionary.messages.deleteConfirm)) {
       try {
         await deleteMutation.mutateAsync(id);
+        toast.success(dictionary.messages.success);
       } catch (error) {
         console.error("Failed to delete category:", error);
+        toast.error(dictionary.messages.error);
       }
     }
   };

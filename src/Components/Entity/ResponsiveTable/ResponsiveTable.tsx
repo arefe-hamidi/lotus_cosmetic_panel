@@ -1,7 +1,7 @@
 "use client"
 
 import { useMediaQuery } from "@/Components/Shadcn/lib/hooks/use-media-query"
-import { useMemo, useState } from "react"
+import { useMemo, useState, useSyncExternalStore } from "react"
 import DesktopView from "./Components/DesktopView"
 import MobileSortButtons from "./Components/MobileSortButtons"
 import MobileView from "./Components/MobileView"
@@ -29,7 +29,13 @@ export default function ResponsiveTable<T extends iRowData>({
 }: iProps<T>) {
     const bp = BREAKPOINT_PIXELS[breakpoint]
     const isMobileView = useMediaQuery(`(max-width: ${bp - 1}px)`)
+    const mounted = useSyncExternalStore(
+        () => () => {},
+        () => true,
+        () => false
+    )
     const [expandedIndexes, setExpandedIndexes] = useState<Set<number>>(new Set())
+
     const hasExpandableFeature = !!renderExpanded
 
     const { currentSortField, handleSortClick, getSortIcon } = useTableSort({
@@ -41,6 +47,10 @@ export default function ResponsiveTable<T extends iRowData>({
         () => (row: T, index: number) => getRowKey(row, index, rowKey),
         [rowKey]
     )
+
+    if (!mounted) {
+        return null // Or a loading state that matches SSR
+    }
 
     if (isMobileView) {
         const sortButtons = sortClick ? (

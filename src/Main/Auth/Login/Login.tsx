@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 import type { iLocale } from "@/Components/Entity/Locale/types";
 import { getDictionary } from "./i18n";
@@ -41,18 +42,20 @@ export default function Login({ locale }: iProps) {
       setAuthToken(response.access, rememberMe);
 
       // Redirect to dashboard on success
+      toast.success(dictionary.success || "Login successful");
       router.push(appRoutes.dashboard.home(locale));
     } catch (err) {
+      let message = dictionary.error;
       if (err instanceof Response) {
         try {
           const errorData = await err.json();
-          setError(errorData.message || errorData.detail || dictionary.error);
+          message = errorData.message || errorData.detail || dictionary.error;
         } catch {
-          setError(dictionary.error);
+          message = dictionary.error;
         }
-      } else {
-        setError(dictionary.error);
       }
+      setError(message);
+      toast.error(message);
     } finally {
       setIsLoading(false);
     }

@@ -1,7 +1,7 @@
 import { proxyFetch } from "@/lib/api/proxyFetch/proxyFetch";
 import { apiRoute } from "@/lib/routes/utils";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import type { iCategory, iCategoryRequest } from "./type";
+import type { iCategory, iCategoryRequest, iPaginatedResponse } from "./type";
 
 export function useGetCategories() {
   const endpoint = apiRoute("CATEGORY", "/");
@@ -10,7 +10,8 @@ export function useGetCategories() {
     queryFn: async () => {
       const res = await proxyFetch(endpoint);
       if (!res.ok) throw res;
-      return (await res.json()) as iCategory[];
+      const data = (await res.json()) as iPaginatedResponse<iCategory>;
+      return data.results;
     },
   });
 }

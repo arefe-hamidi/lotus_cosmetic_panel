@@ -6,6 +6,7 @@ import "@/Components/Entity/Theme/styles.css";
 import ThemeInit from "@/Components/Entity/Theme/Components/ThemeInit";
 import { getLayoutTheme } from "@/Components/Entity/Theme/utils.server";
 import QueryProvider from "@/lib/query/QueryProvider";
+import { Toaster } from "@/Components/Shadcn/sonner";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -37,6 +38,7 @@ export default async function RootLayout({
       >
         <ThemeInit />
         <QueryProvider>{children}</QueryProvider>
+        <Toaster />
       </body>
     </html>
   );

@@ -6,8 +6,15 @@ export interface iCategory {
   icon: string | null;
   order: number;
   is_active: boolean;
-  created_at?: string;
-  updated_at?: string;
+  created?: string;
+  updated?: string;
+}
+
+export interface iPaginatedResponse<T> {
+  count: number;
+  next: string | null;
+  previous: string | null;
+  results: T[];
 }
 
 export interface iCategoryRequest {

@@ -9,6 +9,7 @@ const en = {
   submit: "Login",
   loading: "Logging in...",
   error: "Invalid email/username or password.",
+  success: "Logged in successfully",
 } satisfies iDictionaryBaseStructure;
 
 const fa = {
@@ -19,6 +20,7 @@ const fa = {
   submit: "ورود",
   loading: "در حال ورود...",
   error: "ایمیل/نام کاربری یا رمز عبور اشتباه است.",
+  success: "با موفقیت وارد شدید",
 } satisfies typeof en;
 
 export type iDictionary = typeof en;
