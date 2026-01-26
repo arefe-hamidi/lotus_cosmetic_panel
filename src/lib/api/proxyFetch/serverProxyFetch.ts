@@ -22,6 +22,7 @@ export async function serverProxyFetch(
   const headersMap = new Map<string, string>()
   let isAuthFromHeader = false
   let contentType = "application/json"
+  let authTokenFromHeader: string | null = null
   
   if (headers) {
     if (headers instanceof Headers) {
@@ -29,6 +30,8 @@ export async function serverProxyFetch(
         const lowerKey = key.toLowerCase()
         if (lowerKey === "x-is-auth-endpoint" && value === "true") {
           isAuthFromHeader = true
+        } else if (lowerKey === "x-auth-token") {
+          authTokenFromHeader = value.trim()
         } else if (lowerKey === "content-type") {
           contentType = value
         } else {
@@ -40,6 +43,8 @@ export async function serverProxyFetch(
         const lowerKey = key.toLowerCase()
         if (lowerKey === "x-is-auth-endpoint" && value === "true") {
           isAuthFromHeader = true
+        } else if (lowerKey === "x-auth-token") {
+          authTokenFromHeader = String(value).trim()
         } else if (lowerKey === "content-type") {
           contentType = value
         } else {
@@ -52,6 +57,8 @@ export async function serverProxyFetch(
         const lowerKey = key.toLowerCase()
         if (lowerKey === "x-is-auth-endpoint" && value === "true") {
           isAuthFromHeader = true
+        } else if (lowerKey === "x-auth-token") {
+          authTokenFromHeader = String(value).trim()
         } else if (lowerKey === "content-type") {
           contentType = value
         } else {
@@ -64,11 +71,22 @@ export async function serverProxyFetch(
   // Check if this is an auth endpoint
   const isAuth = isAuthFromHeader || isAuthEndpoint(endpoint)
 
-  const cookieStore = await cookies();
-  const authTokenRaw = cookieStore.get("auth-token")?.value;
+  // Get auth token - prefer header (passed from proxyHandler), fallback to cookies
+  let authToken: string | null = authTokenFromHeader
   
-  // Decode the token (it's encoded with encodeURIComponent when set)
-  const authToken = authTokenRaw ? decodeURIComponent(authTokenRaw).trim() : null;
+  // If not found in header, try reading from cookies (for server components)
+  if (!authToken) {
+    try {
+      const cookieStore = await cookies();
+      const authTokenRaw = cookieStore.get("auth-token")?.value;
+      if (authTokenRaw) {
+        authToken = decodeURIComponent(authTokenRaw).trim();
+      }
+    } catch (error) {
+      // cookies() might not work in all contexts, that's okay
+      console.log("[ServerProxyFetch] Could not read cookies, using header token if available")
+    }
+  }
   
   const isFormData = body instanceof FormData
   const isStream = body instanceof ReadableStream
@@ -89,11 +107,17 @@ export async function serverProxyFetch(
   // Add auth token only if not an auth endpoint
   if (authToken && !isAuth) {
     requestHeaders.set("Authorization", `Bearer ${authToken}`)
+    console.log(`[ServerProxyFetch] Added Authorization header for ${endpoint}`)
+  } else if (!isAuth) {
+    console.warn(`[ServerProxyFetch] No auth token available for ${endpoint}`)
   }
   
-  // Add other headers
+  // Add other headers (but exclude x-auth-token as it's internal)
   headersMap.forEach((value, key) => {
-    requestHeaders.set(key, value)
+    const lowerKey = key.toLowerCase()
+    if (lowerKey !== "x-auth-token") {
+      requestHeaders.set(key, value)
+    }
   })
 
   // Handle body - don't stringify FormData or ReadableStream

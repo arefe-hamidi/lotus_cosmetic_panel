@@ -33,15 +33,13 @@ export async function proxyHandler(req: NextRequest, { params }: { params: Promi
     // Allow auth endpoints without session check
     const isAuth = isAuthEndpoint(endpoint)
     
+    // For non-auth endpoints, we'll let the backend handle authentication
+    // We just need to pass the token if it exists
+    // The backend will return 401 if the token is invalid/missing
     if (!isAuth) {
-        try {
-            const session = await auth()
-            if (!session) {
-                return new Response("Session Unauthorized", { status: 401 })
-            }
-        } catch (error) {
-            // Allow request to continue if auth check fails
-        }
+        // Log all cookies for debugging
+        const allCookies = req.cookies.getAll()
+        console.log(`[ProxyHandler] All cookies in request:`, allCookies.map(c => c.name))
     }
 
     const contentType = headers.get("content-type")
@@ -50,6 +48,30 @@ export async function proxyHandler(req: NextRequest, { params }: { params: Promi
     // Add a flag to indicate if this is an auth endpoint (for serverProxyFetch)
     if (isAuth) {
         requestHeaders["x-is-auth-endpoint"] = "true"
+    }
+    
+    // Read auth token from request cookies and pass it to serverProxyFetch
+    let authToken: string | null = null
+    if (!isAuth) {
+        try {
+            const authTokenRaw = req.cookies.get("auth-token")?.value
+            console.log(`[ProxyHandler] Reading auth-token cookie. Found:`, !!authTokenRaw, `Raw length:`, authTokenRaw?.length || 0)
+            if (authTokenRaw) {
+                authToken = decodeURIComponent(authTokenRaw).trim()
+                console.log(`[ProxyHandler] Decoded token length:`, authToken.length)
+                if (authToken && authToken.length > 0) {
+                    // Pass the token via header so serverProxyFetch can use it
+                    requestHeaders["x-auth-token"] = authToken
+                    console.log(`[ProxyHandler] ✅ Passing auth token to backend for ${endpoint} (token length: ${authToken.length})`)
+                } else {
+                    console.log(`[ProxyHandler] ❌ Token is empty after decode`)
+                }
+            } else {
+                console.log(`[ProxyHandler] ⚠️ No auth-token cookie found - request will proceed without token`)
+            }
+        } catch (error) {
+            console.error("[ProxyHandler] Error reading auth token:", error)
+        }
     }
     
     // Copy relevant headers from the incoming request

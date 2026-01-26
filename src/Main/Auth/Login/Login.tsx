@@ -38,8 +38,30 @@ export default function Login({ locale }: iProps) {
         password,
       });
 
+      // Debug logging
+      console.log("[Login Component] Response:", {
+        hasAccess: !!response.access,
+        accessValue: response.access ? `${response.access.substring(0, 20)}...` : "undefined",
+        rememberMe,
+      });
+
       // Set the auth token cookie
+      if (!response.access) {
+        console.error("[Login Component] ❌ Access token is undefined!");
+        throw new Error("Login failed: No access token received");
+      }
+
       setAuthToken(response.access, rememberMe);
+      
+      // Verify cookie was set
+      const cookieValue = document.cookie
+        .split("; ")
+        .find(row => row.startsWith("auth-token="))
+        ?.split("=")[1];
+      console.log("[Login Component] Cookie set:", {
+        found: !!cookieValue,
+        length: cookieValue?.length || 0,
+      });
 
       // Redirect to dashboard on success
       toast.success(dictionary.success || "Login successful");
