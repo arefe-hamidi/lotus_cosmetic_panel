@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { Pencil, Trash2 } from "lucide-react";
 import type { iCategory } from "../type";
 import type { iDictionary } from "../i18n";
@@ -7,6 +8,7 @@ import Button from "@/Components/Shadcn/button";
 import Badge from "@/Components/Shadcn/badge";
 import ResponsiveTable from "@/Components/Entity/ResponsiveTable/ResponsiveTable";
 import type { iResponsiveColumn } from "@/Components/Entity/ResponsiveTable/types";
+import DeleteConfirmation from "@/Components/Entity/DeleteConfirmation/DeleteConfirmation";
 
 interface iProps {
   categories: iCategory[] | undefined;
@@ -23,6 +25,23 @@ export default function CategoryTable({
   onDelete,
   dictionary,
 }: iProps) {
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [categoryToDelete, setCategoryToDelete] = useState<iCategory | null>(
+    null
+  );
+
+  const handleDeleteClick = (category: iCategory) => {
+    setCategoryToDelete(category);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleConfirmDelete = () => {
+    if (categoryToDelete?.id) {
+      onDelete(categoryToDelete.id);
+      setCategoryToDelete(null);
+    }
+  };
+
   const columns: iResponsiveColumn<iCategory>[] = [
     {
       label: dictionary.table.name,
@@ -68,7 +87,7 @@ export default function CategoryTable({
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => row.id && onDelete(row.id)}
+            onClick={() => handleDeleteClick(row)}
           >
             <Trash2 className="h-4 w-4 text-destructive" />
             <span className="sr-only">Delete</span>
@@ -79,12 +98,22 @@ export default function CategoryTable({
   ];
 
   return (
-    <ResponsiveTable
-      data={categories || []}
-      columns={columns}
-      breakpoint="md"
-      isFetching={isLoading}
-      emptyMessage="No categories found."
-    />
+    <>
+      <ResponsiveTable
+        data={categories || []}
+        columns={columns}
+        breakpoint="md"
+        isFetching={isLoading}
+        emptyMessage="No categories found."
+      />
+      <DeleteConfirmation
+        open={deleteDialogOpen}
+        onOpenChange={setDeleteDialogOpen}
+        title={dictionary.deleteCategory}
+        description={dictionary.messages.deleteConfirm}
+        onConfirm={handleConfirmDelete}
+        isLoading={isLoading}
+      />
+    </>
   );
 }

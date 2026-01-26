@@ -4,7 +4,10 @@ import type { iDictionaryBaseStructure } from "@/Components/Entity/Locale/types"
 const en = {
   nav: {
     dashboard: "Dashboard",
-category: "Category",
+    category: "Category",
+  },
+  userInfo: {
+    notAvailable: "User info not available",
   },
 } satisfies iDictionaryBaseStructure;
 
@@ -12,6 +15,9 @@ const fa = {
   nav: {
     dashboard: "داشبورد",
     category: "دسته بندی",
+  },
+  userInfo: {
+    notAvailable: "اطلاعات کاربر در دسترس نیست",
   },
 } satisfies typeof en;
 

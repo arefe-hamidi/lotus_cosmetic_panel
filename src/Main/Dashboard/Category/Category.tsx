@@ -88,14 +88,12 @@ export default function Category({ locale }: iProps) {
   };
 
   const handleDelete = async (id: number) => {
-    if (confirm(dictionary.messages.deleteConfirm)) {
-      try {
-        await deleteMutation.mutateAsync(id);
-        toast.success(dictionary.messages.success);
-      } catch (error) {
-        console.error("Failed to delete category:", error);
-        toast.error(dictionary.messages.error);
-      }
+    try {
+      await deleteMutation.mutateAsync(id);
+      toast.success(dictionary.messages.deleted);
+    } catch (error) {
+      console.error("Failed to delete category:", error);
+      toast.error(dictionary.messages.error);
     }
   };
 

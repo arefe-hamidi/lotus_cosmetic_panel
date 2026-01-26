@@ -2,13 +2,14 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Package, LayoutDashboard } from "lucide-react";
+import { Package, LayoutDashboard, User } from "lucide-react";
 import type { iLocale } from "@/Components/Entity/Locale/types";
 import { getDictionary } from "./i18n";
 import { cn } from "@/Components/Shadcn/lib/utils";
 import { Separator } from "@/Components/Shadcn/separator";
 import { useSidebar } from "./SidebarContext";
 import { appRoutes } from "@/lib/routes/appRoutes";
+import { useGetProfile } from "@/lib/api/auth/profile";
 
 interface iProps {
   locale: iLocale;
@@ -32,6 +33,7 @@ export default function Sidebar({ locale, onLinkClick }: iProps) {
   const dictionary = getDictionary(locale);
   const pathname = usePathname();
   const { isCollapsed } = useSidebar();
+  const { data: profile, isLoading: isProfileLoading } = useGetProfile();
 
   return (
     <div
@@ -72,13 +74,54 @@ export default function Sidebar({ locale, onLinkClick }: iProps) {
         })}
       </nav>
       <Separator />
-      {!isCollapsed && (
-        <div className="p-4">
-          <div className="text-xs text-muted-foreground">
-            Lotus Cosmetic Panel
+      <div className="p-4">
+        {isProfileLoading ? (
+          <div className={cn("flex items-center gap-3", isCollapsed && "justify-center")}>
+            <div className="h-8 w-8 animate-pulse rounded-full bg-muted" />
+            {!isCollapsed && (
+              <div className="flex-1 space-y-1">
+                <div className="h-3 w-20 animate-pulse rounded bg-muted" />
+                <div className="h-2 w-32 animate-pulse rounded bg-muted" />
+              </div>
+            )}
           </div>
-        </div>
-      )}
+        ) : profile ? (
+          <div className={cn("flex items-center gap-3", isCollapsed && "justify-center")}>
+            {profile.avatar ? (
+              <img
+                src={profile.avatar}
+                alt={profile.full_name || profile.username}
+                className="h-8 w-8 rounded-full object-cover"
+              />
+            ) : (
+              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground">
+                <User className="h-4 w-4" />
+              </div>
+            )}
+            {!isCollapsed && (
+              <div className="flex-1 min-w-0">
+                <div className="truncate text-sm font-medium">
+                  {profile.full_name ||
+                    (profile.first_name && profile.last_name
+                      ? `${profile.first_name} ${profile.last_name}`
+                      : profile.username)}
+                </div>
+                {profile.email && (
+                  <div className="truncate text-xs text-muted-foreground">
+                    {profile.email}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        ) : (
+          !isCollapsed && (
+            <div className="text-xs text-muted-foreground">
+              {dictionary.userInfo.notAvailable}
+            </div>
+          )
+        )}
+      </div>
     </div>
   );
 }

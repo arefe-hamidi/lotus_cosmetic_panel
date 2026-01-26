@@ -1,34 +1,42 @@
-"use client";
+import { IS_SERVER } from "../../configs/constants"
+import { iProxyFetchOptions, iProxyFetchOptionsWithHeader } from "../types"
+import { clientProxyFetch } from "./clientProxyFetch"
+import { serverProxyFetch } from "./serverProxyFetch"
 
-import { NEXT_PUBLIC_API_BASE_URL } from "@/lib/configs/constants";
+export async function proxyFetch(endpoint: string, options: iProxyFetchOptions = {}) {
+    if (!endpoint.startsWith("/")) {
+        console.warn(`proxyFetch: Endpoint should start with a slash. endpoint: ${endpoint}`)
+        endpoint = `/${endpoint}`
+    }
 
-interface ProxyFetchOptions extends Omit<RequestInit, "body"> {
-  body?: unknown;
-}
+    const headers = new Headers()
+    if (typeof options.headers === "object" && options.headers !== null)
+        for (const [key, value] of Object.entries(options.headers)) {
+            headers.set(key.toLowerCase(), value as string)
+        }
 
-export async function proxyFetch(
-  endpoint: string,
-  options: ProxyFetchOptions = {}
-): Promise<Response> {
-  const { body, headers, ...restOptions } = options;
+    // Check if body is FormData or ReadableStream (for file uploads)
+    const isFormData = options.body instanceof FormData
+    const isStream = options.body instanceof ReadableStream
+    const isUploadData = isFormData || isStream
 
-  const requestHeaders: HeadersInit = {
-    "Content-Type": "application/json",
-    ...headers,
-  };
+    if (!headers.has("content-type") && !isUploadData) {
+        if (options.body && typeof options.body === "object") {
+            options.body = JSON.stringify(options.body)
+            headers.set("content-type", "application/json; charset=utf-8")
+        }
+    } else if (isFormData || headers.get("content-type")?.includes("form-data")) {
+        // For multipart/form-data, let fetch handle the content-type automatically
+        // This is crucial for maintaining proper boundaries
+        headers.delete("content-type")
+    }
 
-  const requestBody = body ? JSON.stringify(body) : undefined;
+    const reqOptions = {
+        ...options,
+        headers
+    } as iProxyFetchOptionsWithHeader
 
-  const url = endpoint.startsWith("http")
-    ? endpoint
-    : `${NEXT_PUBLIC_API_BASE_URL}${endpoint}`;
-
-  const response = await fetch(url, {
-    ...restOptions,
-    headers: requestHeaders,
-    body: requestBody,
-    credentials: "include",
-  });
-
-  return response;
+    return IS_SERVER
+        ? serverProxyFetch(endpoint, reqOptions)
+        : clientProxyFetch(endpoint, reqOptions)
 }

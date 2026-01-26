@@ -26,6 +26,7 @@ const en = {
   },
   messages: {
     success: "Category saved successfully",
+    deleted: "Category deleted successfully",
     error: "An error occurred while saving the category",
     deleteConfirm: "Are you sure you want to delete this category?",
   },
@@ -56,6 +57,7 @@ const fa = {
   },
   messages: {
     success: "دسته بندی با موفقیت ذخیره شد",
+    deleted:"دسته بندی با موفقیت حذف شد",    
     error: "خطایی در ذخیره دسته بندی رخ داد",
     deleteConfirm: "آیا از حذف این دسته بندی مطمئن هستید؟",
   },

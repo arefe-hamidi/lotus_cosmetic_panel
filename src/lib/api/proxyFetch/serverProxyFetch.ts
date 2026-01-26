@@ -1,3 +1,5 @@
+"use server";
+
 import { cookies } from "next/headers";
 import { API_BASE_URL, API_SUB_KEY } from "@/lib/configs/constants";
 
@@ -12,7 +14,10 @@ export async function serverProxyFetch(
   const { body, headers, ...restOptions } = options;
 
   const cookieStore = await cookies();
-  const authToken = cookieStore.get("auth-token")?.value;
+  const authTokenRaw = cookieStore.get("auth-token")?.value;
+  
+  // Decode the token (it's encoded with encodeURIComponent when set)
+  const authToken = authTokenRaw ? decodeURIComponent(authTokenRaw).trim() : null;
 
   const requestHeaders: HeadersInit = {
     "Content-Type": "application/json",

@@ -11,3 +11,5 @@ export const NEXT_PUBLIC_API_BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL ||
   process.env.API_BASE_URL ||
   "http://localhost:8000";
+export const IS_SERVER = typeof window === "undefined"
+export const IS_CLIENT = typeof window !== "undefined"
