@@ -13,6 +13,9 @@ export interface iUserProfile {
   full_name?: string;
   avatar?: string;
   phone?: string;
+  date_joined?: string;
+  last_login?: string;
+  roles?: Array<{ id: string; [key: string]: unknown }> | [];
   [key: string]: unknown;
 }
 

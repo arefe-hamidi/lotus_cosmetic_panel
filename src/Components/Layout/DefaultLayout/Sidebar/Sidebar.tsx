@@ -90,7 +90,7 @@ export default function Sidebar({ locale, onLinkClick }: iProps) {
             {profile.avatar ? (
               <img
                 src={profile.avatar}
-                alt={profile.full_name || profile.username}
+                alt={profile.full_name || profile.username || "User"}
                 className="h-8 w-8 rounded-full object-cover"
               />
             ) : (
@@ -104,11 +104,16 @@ export default function Sidebar({ locale, onLinkClick }: iProps) {
                   {profile.full_name ||
                     (profile.first_name && profile.last_name
                       ? `${profile.first_name} ${profile.last_name}`
-                      : profile.username)}
+                      : profile.username || "User")}
                 </div>
                 {profile.email && (
                   <div className="truncate text-xs text-muted-foreground">
                     {profile.email}
+                  </div>
+                )}
+                {profile.roles && profile.roles.length > 0 && (
+                  <div className="truncate text-xs text-muted-foreground mt-0.5">
+                    {profile.roles.length} {profile.roles.length === 1 ? "role" : "roles"}
                   </div>
                 )}
               </div>
