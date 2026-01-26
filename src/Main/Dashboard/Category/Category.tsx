@@ -1,9 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Plus } from "lucide-react";
+import { Plus, List, Network } from "lucide-react";
 import { toast } from "sonner";
-
 import type { iLocale } from "@/Components/Entity/Locale/types";
 import { getDictionary } from "./i18n";
 import {
@@ -16,6 +15,7 @@ import type { iCategory, iCategoryRequest } from "./type";
 
 import Button from "@/Components/Shadcn/button";
 import CategoryTable from "./Components/CategoryTable";
+import CategoryTree from "./Components/CategoryTree";
 import CategorySheet from "./Components/CategoryForm";
 
 interface iProps {
@@ -29,6 +29,7 @@ export default function Category({ locale }: iProps) {
   const updateMutation = useUpdateCategory();
   const deleteMutation = useDeleteCategory();
 
+  const [viewMode, setViewMode] = useState<"table" | "tree">("table");
   const [isOpen, setIsOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState<iCategory | null>(
     null
@@ -106,10 +107,32 @@ export default function Category({ locale }: iProps) {
           </h1>
           <p className="text-muted-foreground">{dictionary.description}</p>
         </div>
-        <Button onClick={() => handleOpenSheet()}>
-          <Plus className="mr-2 h-4 w-4" />
-          {dictionary.addCategory}
-        </Button>
+        <div className="flex items-center gap-2">
+          <div className="flex items-center border rounded-lg">
+            <Button
+              variant={viewMode === "tree" ? "default" : "ghost"}
+              size="icon"
+              className="rounded-r-none"
+              onClick={() => setViewMode("tree")}
+              title="Tree View"
+            >
+              <Network className="h-4 w-4" />
+            </Button>
+            <Button
+              variant={viewMode === "table" ? "default" : "ghost"}
+              size="icon"
+              className="rounded-l-none"
+              onClick={() => setViewMode("table")}
+              title="Table View"
+            >
+              <List className="h-4 w-4" />
+            </Button>
+          </div>
+          <Button onClick={() => handleOpenSheet()}>
+            <Plus className="mr-2 h-4 w-4" />
+            {dictionary.addCategory}
+          </Button>
+        </div>
       </div>
 
       <CategorySheet
@@ -125,13 +148,23 @@ export default function Category({ locale }: iProps) {
         isPending={createMutation.isPending || updateMutation.isPending}
       />
 
-      <CategoryTable
-        categories={categories}
-        isLoading={isLoading}
-        onEdit={handleOpenSheet}
-        onDelete={handleDelete}
-        dictionary={dictionary}
-      />
+      {viewMode === "tree" ? (
+        <CategoryTree
+          categories={categories}
+          isLoading={isLoading}
+          onEdit={handleOpenSheet}
+          onDelete={handleDelete}
+          dictionary={dictionary}
+        />
+      ) : (
+        <CategoryTable
+          categories={categories}
+          isLoading={isLoading}
+          onEdit={handleOpenSheet}
+          onDelete={handleDelete}
+          dictionary={dictionary}
+        />
+      )}
     </div>
   );
 }

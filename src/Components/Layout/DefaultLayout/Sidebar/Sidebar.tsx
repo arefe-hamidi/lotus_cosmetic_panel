@@ -7,6 +7,7 @@ import type { iLocale } from "@/Components/Entity/Locale/types";
 import { getDictionary } from "./i18n";
 import { cn } from "@/Components/Shadcn/lib/utils";
 import { Separator } from "@/Components/Shadcn/separator";
+import Skeleton from "@/Components/Shadcn/skeleton";
 import { useSidebar } from "./SidebarContext";
 import { appRoutes } from "@/lib/routes/appRoutes";
 import { useGetProfile } from "@/lib/api/auth/profile";
@@ -77,11 +78,11 @@ export default function Sidebar({ locale, onLinkClick }: iProps) {
       <div className="p-4">
         {isProfileLoading ? (
           <div className={cn("flex items-center gap-3", isCollapsed && "justify-center")}>
-            <div className="h-8 w-8 animate-pulse rounded-full bg-muted" />
+            <Skeleton className="h-8 w-8 rounded-full" />
             {!isCollapsed && (
               <div className="flex-1 space-y-1">
-                <div className="h-3 w-20 animate-pulse rounded bg-muted" />
-                <div className="h-2 w-32 animate-pulse rounded bg-muted" />
+                <Skeleton className="h-3 w-20" />
+                <Skeleton className="h-2 w-32" />
               </div>
             )}
           </div>
