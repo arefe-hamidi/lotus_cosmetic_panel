@@ -1,0 +1,44 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Build outputs
+.next/
+out/
+build/
+dist/
+.vercel/
+
+# Cache
+.turbo/
+.cache/
+*.tsbuildinfo
+
+# Environment files
+.env
+.env*.local
+
+# Logs
+*.log
+logs/
+
+# Package manager
+pnpm-lock.yaml
+package-lock.json
+yarn.lock
+
+# IDE
+.vscode/
+.idea/
+*.code-workspace
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Public assets (usually don't format)
+public/
+
+# Generated files
+next-env.d.ts

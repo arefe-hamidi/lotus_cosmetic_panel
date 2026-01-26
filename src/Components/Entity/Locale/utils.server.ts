@@ -2,6 +2,7 @@ import "server-only";
 
 import { cookies } from "next/headers";
 import { headers } from "next/headers";
+import { NextRequest, NextResponse } from "next/server";
 
 import type { iLocale } from "./types";
 import { LOCALES, DEFAULT_LOCALE, LOCALE_COOKIE_NAME } from "./constants";
@@ -46,5 +47,21 @@ export async function getLocaleFromRequest(): Promise<iLocale> {
   }
 
   return DEFAULT_LOCALE;
+}
+
+export function hasValidLocal(pathname: string): boolean {
+  const segments = pathname.split("/").filter(Boolean);
+  const firstSegment = segments[0];
+  return firstSegment ? LOCALES.includes(firstSegment as iLocale) : false;
+}
+
+export async function addLocaleToRequest(
+  pathname: string,
+  request: NextRequest
+): Promise<NextResponse> {
+  const locale = await getLocaleFromRequest();
+  const url = request.nextUrl.clone();
+  url.pathname = `/${locale}${pathname === "/" ? "" : pathname}`;
+  return NextResponse.redirect(url);
 }
 

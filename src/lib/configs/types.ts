@@ -1,5 +1,5 @@
 import { iLocale } from "@/Components/Entity/Locale/types"
-import { TooltipContentProps } from "recharts"
+import { DefaultTooltipContentProps } from "recharts"
 import { NameType, ValueType } from "recharts/types/component/DefaultTooltipContent"
 
 export interface iAuditInfo {
@@ -50,7 +50,7 @@ export interface iMedia {
     }
 }
 
-export type iChartTooltipContentProps = TooltipContentProps<ValueType, NameType>
+export type iChartTooltipContentProps = DefaultTooltipContentProps<ValueType, NameType>
 
 export type iPageRouteHandler = (term?: string, page?: number, pageSize?: number) => string
 

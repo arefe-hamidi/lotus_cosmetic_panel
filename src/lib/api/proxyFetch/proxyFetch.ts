@@ -10,19 +10,35 @@ export async function proxyFetch(endpoint: string, options: iProxyFetchOptions =
     }
 
     const headers = new Headers()
-    if (typeof options.headers === "object" && options.headers !== null)
-        for (const [key, value] of Object.entries(options.headers)) {
-            headers.set(key.toLowerCase(), value as string)
+    
+    // Handle different header types (Headers, Record, Array, or undefined)
+    if (options.headers) {
+        if (options.headers instanceof Headers) {
+            options.headers.forEach((value, key) => {
+                headers.set(key, value)
+            })
+        } else if (Array.isArray(options.headers)) {
+            for (const [key, value] of options.headers) {
+                headers.set(key, value)
+            }
+        } else if (typeof options.headers === "object") {
+            for (const [key, value] of Object.entries(options.headers)) {
+                headers.set(key, String(value))
+            }
         }
+    }
 
     // Check if body is FormData or ReadableStream (for file uploads)
     const isFormData = options.body instanceof FormData
     const isStream = options.body instanceof ReadableStream
     const isUploadData = isFormData || isStream
 
+    // Handle body - don't modify the original options object
+    let processedBody: BodyInit | undefined = options.body as BodyInit | undefined
+
     if (!headers.has("content-type") && !isUploadData) {
-        if (options.body && typeof options.body === "object") {
-            options.body = JSON.stringify(options.body)
+        if (options.body && typeof options.body === "object" && !isFormData && !isStream) {
+            processedBody = JSON.stringify(options.body)
             headers.set("content-type", "application/json; charset=utf-8")
         }
     } else if (isFormData || headers.get("content-type")?.includes("form-data")) {
@@ -31,10 +47,20 @@ export async function proxyFetch(endpoint: string, options: iProxyFetchOptions =
         headers.delete("content-type")
     }
 
-    const reqOptions = {
-        ...options,
+    const reqOptions: iProxyFetchOptionsWithHeader = {
+        method: options.method,
+        signal: options.signal,
+        cache: options.cache,
+        credentials: options.credentials,
+        mode: options.mode,
+        redirect: options.redirect,
+        referrer: options.referrer,
+        referrerPolicy: options.referrerPolicy,
+        integrity: options.integrity,
+        keepalive: options.keepalive,
+        body: processedBody,
         headers
-    } as iProxyFetchOptionsWithHeader
+    }
 
     return IS_SERVER
         ? serverProxyFetch(endpoint, reqOptions)
