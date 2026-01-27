@@ -67,3 +67,20 @@ export function useDeleteCategory() {
     },
   });
 }
+
+export function useSearchCategories(query: string, limit: number = 20) {
+  const endpoint = apiRoute("CATEGORY", "/search/", { q: query, limit });
+  return useQuery({
+    queryKey: ["categories", "search", query, limit],
+    queryFn: async () => {
+      if (!query.trim()) {
+        return [];
+      }
+      const res = await proxyFetch(endpoint);
+      if (!res.ok) throw res;
+      const data = (await res.json()) as iPaginatedResponse<iCategory>;
+      return data.results;
+    },
+    enabled: query.trim().length > 0,
+  });
+}

@@ -21,6 +21,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/Components/Shadcn/select";
+import { CategoryFormSearchableSelect } from "./CategoryFormSearchableSelect";
 
 interface iProps {
   isOpen: boolean;
@@ -83,33 +84,21 @@ export default function CategoryForm({
           </div>
           <div className="space-y-2">
             <Label htmlFor="parent">{dictionary.form.parent}</Label>
-            <Select
-              value={formData.parent?.toString() || "none"}
-              onValueChange={(value) =>
+            <CategoryFormSearchableSelect
+              value={formData.parent}
+              onChange={(parentId) =>
                 setFormData({
                   ...formData,
-                  parent: value === "none" ? null : parseInt(value),
+                  parent: parentId,
                 })
               }
               disabled={lockedParent !== undefined}
-            >
-              <SelectTrigger id="parent">
-                <SelectValue placeholder={dictionary.form.parent} />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="none">None</SelectItem>
-                { categories && categories.length > 0 && categories
-                  ?.filter((c) => c.id !== editingCategory?.id)
-                  .map((category) => (
-                    <SelectItem
-                      key={category.id}
-                      value={category.id?.toString() || ""}
-                    >
-                      {category.name}
-                    </SelectItem>
-                  ))}
-              </SelectContent>
-            </Select>
+              placeholder={dictionary.form.parent}
+              excludeId={editingCategory?.id}
+              selectedCategory={
+                categories?.find((c) => c.id === formData.parent) || null
+              }
+            />
             {lockedParent !== undefined && (
               <p className="text-xs text-muted-foreground">
                 Parent category is locked and cannot be changed.
