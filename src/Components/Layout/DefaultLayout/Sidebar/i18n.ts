@@ -5,6 +5,7 @@ const en = {
   nav: {
     dashboard: "Dashboard",
     category: "Category",
+    products: "Products",
   },
   userInfo: {
     notAvailable: "User info not available",
@@ -15,6 +16,7 @@ const fa = {
   nav: {
     dashboard: "داشبورد",
     category: "دسته بندی",
+    products: "محصولات",
   },
   userInfo: {
     notAvailable: "اطلاعات کاربر در دسترس نیست",

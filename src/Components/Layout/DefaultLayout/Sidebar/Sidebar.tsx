@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Package, LayoutDashboard, User } from "lucide-react";
+import { Package, LayoutDashboard, User, ShoppingBag } from "lucide-react";
 import type { iLocale } from "@/Components/Entity/Locale/types";
 import { getDictionary } from "./i18n";
 import { cn } from "@/Components/Shadcn/lib/utils";
@@ -28,6 +28,11 @@ const navItems = [
     href: (locale: iLocale) => appRoutes.dashboard.category(locale),
     icon: Package,
   },
+  {
+      title:'products',
+      href: (locale: iLocale) => appRoutes.dashboard.products.root(locale),
+      icon: ShoppingBag,
+  }
 ];
 
 export default function Sidebar({ locale, onLinkClick }: iProps) {
