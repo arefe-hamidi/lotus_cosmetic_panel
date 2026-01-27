@@ -33,6 +33,7 @@ interface iProps {
   locale: iLocale;
   categories: iCategory[] | undefined;
   isPending: boolean;
+  lockedParent?: number | null;
 }
 
 export default function CategoryForm({
@@ -46,6 +47,7 @@ export default function CategoryForm({
   locale,
   categories,
   isPending,
+  lockedParent,
 }: iProps) {
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
@@ -89,6 +91,7 @@ export default function CategoryForm({
                   parent: value === "none" ? null : parseInt(value),
                 })
               }
+              disabled={lockedParent !== undefined}
             >
               <SelectTrigger id="parent">
                 <SelectValue placeholder={dictionary.form.parent} />
@@ -107,6 +110,11 @@ export default function CategoryForm({
                   ))}
               </SelectContent>
             </Select>
+            {lockedParent !== undefined && (
+              <p className="text-xs text-muted-foreground">
+                Parent category is locked and cannot be changed.
+              </p>
+            )}
           </div>
           <div className="space-y-2">
             <Label htmlFor="icon">{dictionary.form.icon}</Label>

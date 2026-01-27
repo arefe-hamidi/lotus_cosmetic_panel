@@ -14,8 +14,7 @@ import {
 import type { iCategory, iCategoryRequest } from "./type";
 
 import Button from "@/Components/Shadcn/button";
-import CategoryTable from "./Components/CategoryTable";
-import CategoryTree from "./Components/CategoryTree";
+import CategoryTree from "./Components/CategoryTree/CategoryTree";
 import CategorySheet from "./Components/CategoryForm";
 
 interface iProps {
@@ -28,11 +27,12 @@ export default function Category({ locale }: iProps) {
   const createMutation = useCreateCategory();
   const updateMutation = useUpdateCategory();
   const deleteMutation = useDeleteCategory();
-
-  const [viewMode, setViewMode] = useState<"table" | "tree">("table");
   const [isOpen, setIsOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState<iCategory | null>(
     null
+  );
+  const [lockedParent, setLockedParent] = useState<number | null | undefined>(
+    undefined
   );
 
   const [formData, setFormData] = useState<iCategoryRequest>({
@@ -55,6 +55,7 @@ export default function Category({ locale }: iProps) {
         order: category.order,
         is_active: category.is_active,
       });
+      setLockedParent(undefined);
     } else {
       setEditingCategory(null);
       setFormData({
@@ -65,7 +66,22 @@ export default function Category({ locale }: iProps) {
         order: 1,
         is_active: true,
       });
+      setLockedParent(undefined);
     }
+    setIsOpen(true);
+  };
+
+  const handleAddChild = (parentCategory: iCategory) => {
+    setEditingCategory(null);
+    setFormData({
+      name: "",
+      slug: "",
+      parent: parentCategory.id || null,
+      icon: null,
+      order: 1,
+      is_active: true,
+    });
+    setLockedParent(parentCategory.id || null);
     setIsOpen(true);
   };
 
@@ -82,6 +98,7 @@ export default function Category({ locale }: iProps) {
       }
       toast.success(dictionary.messages.success);
       setIsOpen(false);
+      setLockedParent(undefined);
     } catch (error) {
       console.error("Failed to save category:", error);
       toast.error(dictionary.messages.error);
@@ -108,26 +125,6 @@ export default function Category({ locale }: iProps) {
           <p className="text-muted-foreground">{dictionary.description}</p>
         </div>
         <div className="flex items-center gap-2">
-          <div className="flex items-center border rounded-lg">
-            <Button
-              variant={viewMode === "tree" ? "default" : "ghost"}
-              size="icon"
-              className="rounded-r-none"
-              onClick={() => setViewMode("tree")}
-              title="Tree View"
-            >
-              <Network className="h-4 w-4" />
-            </Button>
-            <Button
-              variant={viewMode === "table" ? "default" : "ghost"}
-              size="icon"
-              className="rounded-l-none"
-              onClick={() => setViewMode("table")}
-              title="Table View"
-            >
-              <List className="h-4 w-4" />
-            </Button>
-          </div>
           <Button onClick={() => handleOpenSheet()}>
             <Plus className="mr-2 h-4 w-4" />
             {dictionary.addCategory}
@@ -137,7 +134,12 @@ export default function Category({ locale }: iProps) {
 
       <CategorySheet
         isOpen={isOpen}
-        setIsOpen={setIsOpen}
+        setIsOpen={(open) => {
+          setIsOpen(open);
+          if (!open) {
+            setLockedParent(undefined);
+          }
+        }}
         editingCategory={editingCategory}
         formData={formData}
         setFormData={setFormData}
@@ -146,25 +148,19 @@ export default function Category({ locale }: iProps) {
         locale={locale}
         categories={categories}
         isPending={createMutation.isPending || updateMutation.isPending}
+        lockedParent={lockedParent}
       />
 
-      {viewMode === "tree" ? (
-        <CategoryTree
+    
+       { categories&& <CategoryTree
           categories={categories}
           isLoading={isLoading}
           onEdit={handleOpenSheet}
           onDelete={handleDelete}
+          onAddChild={handleAddChild}
           dictionary={dictionary}
-        />
-      ) : (
-        <CategoryTable
-          categories={categories}
-          isLoading={isLoading}
-          onEdit={handleOpenSheet}
-          onDelete={handleDelete}
-          dictionary={dictionary}
-        />
-      )}
+        />}
+ 
     </div>
   );
 }
