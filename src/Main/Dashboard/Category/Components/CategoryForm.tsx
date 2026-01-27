@@ -72,17 +72,6 @@ export default function CategoryForm({
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="slug">{dictionary.form.slug}</Label>
-            <Input
-              id="slug"
-              value={formData.slug}
-              onChange={(e) =>
-                setFormData({ ...formData, slug: e.target.value })
-              }
-              required
-            />
-          </div>
-          <div className="space-y-2">
             <Label htmlFor="parent">{dictionary.form.parent}</Label>
             <CategoryFormSearchableSelect
               value={formData.parent}

@@ -12,6 +12,7 @@ import {
   useDeleteCategory,
 } from "./api";
 import type { iCategory, iCategoryRequest } from "./type";
+import { parseErrorResponse } from "@/lib/api/utils/parseError";
 
 import Button from "@/Components/Shadcn/button";
 import CategoryTree from "./Components/CategoryTree/CategoryTree";
@@ -37,7 +38,6 @@ export default function Category({ locale }: iProps) {
 
   const [formData, setFormData] = useState<iCategoryRequest>({
     name: "",
-    slug: "",
     parent: null,
     icon: null,
     order: 1,
@@ -49,7 +49,6 @@ export default function Category({ locale }: iProps) {
       setEditingCategory(category);
       setFormData({
         name: category.name,
-        slug: category.slug,
         parent: category.parent,
         icon: category.icon,
         order: category.order,
@@ -60,7 +59,6 @@ export default function Category({ locale }: iProps) {
       setEditingCategory(null);
       setFormData({
         name: "",
-        slug: "",
         parent: null,
         icon: null,
         order: 1,
@@ -75,7 +73,6 @@ export default function Category({ locale }: iProps) {
     setEditingCategory(null);
     setFormData({
       name: "",
-      slug: "",
       parent: parentCategory.id || null,
       icon: null,
       order: 1,
@@ -101,7 +98,11 @@ export default function Category({ locale }: iProps) {
       setLockedParent(undefined);
     } catch (error) {
       console.error("Failed to save category:", error);
-      toast.error(dictionary.messages.error);
+      const errorMessage = await parseErrorResponse(
+        error,
+        dictionary.messages.error
+      );
+      toast.error(errorMessage);
     }
   };
 
@@ -111,7 +112,11 @@ export default function Category({ locale }: iProps) {
       toast.success(dictionary.messages.deleted);
     } catch (error) {
       console.error("Failed to delete category:", error);
-      toast.error(dictionary.messages.error);
+      const errorMessage = await parseErrorResponse(
+        error,
+        dictionary.messages.error
+      );
+      toast.error(errorMessage);
     }
   };
 

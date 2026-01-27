@@ -33,7 +33,6 @@ export function CategoryTreeNode({
         )}>
           {category.name}
         </div>
-        <div className="text-xs text-muted-foreground truncate">{category.slug}</div>
       </div>
       <div className="text-xs text-muted-foreground shrink-0">#{category.order}</div>
     </div>
@@ -77,7 +76,7 @@ export function CategoryTreeNode({
 
   return (
     <TreeNode
-      id={category.id || `category-${category.slug}`}
+      id={category.id || `category-${category.name}`}
       label={label}
       icon={category.icon ? <i className={category.icon} /> : undefined}
       actions={actions}

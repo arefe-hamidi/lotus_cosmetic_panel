@@ -1,7 +1,6 @@
 export interface iCategory {
   id?: number;
   name: string;
-  slug: string;
   parent: number | null;
   icon: string | null;
   order: number;
@@ -19,7 +18,6 @@ export interface iPaginatedResponse<T> {
 
 export interface iCategoryRequest {
   name: string;
-  slug: string;
   parent: number | null;
   icon: string | null;
   order: number;

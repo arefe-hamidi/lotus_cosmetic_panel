@@ -58,7 +58,7 @@ export default function CategoryTree({
   const defaultExpanded = useMemo(
     () =>
       treeData
-        .map((cat) => (cat.id ? cat.id : `category-${cat.slug}`))
+        .map((cat) => (cat.id ? cat.id : `category-${cat.name}`))
         .filter((id): id is string | number => Boolean(id)) as (string | number)[],
     [treeData]
   )
