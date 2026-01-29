@@ -1,58 +1,58 @@
 @import "tailwindcss";
 
 :root {
-  /* Cosmetic Store Color Palette - Light Theme */
-  --background: 0 0% 100%;
-  --foreground: 340 15% 15%;
+  /* Light theme: Full Teal palette */
+  --background: 174 25% 98%;
+  --foreground: 174 30% 14%;
   --card: 0 0% 100%;
-  --card-foreground: 340 15% 15%;
+  --card-foreground: 174 30% 14%;
   --popover: 0 0% 100%;
-  --popover-foreground: 340 15% 15%;
-  /* Primary: Elegant Rose/Pink */
-  --primary: 340 65% 55%;
+  --popover-foreground: 174 30% 14%;
+  /* Primary: Deep Teal */
+  --primary: 174 58% 39%;
   --primary-foreground: 0 0% 100%;
-  /* Secondary: Soft Lavender */
-  --secondary: 280 25% 92%;
-  --secondary-foreground: 340 25% 25%;
-  /* Muted: Warm Beige */
-  --muted: 30 15% 96%;
-  --muted-foreground: 340 10% 40%;
-  /* Accent: Gold/Peach */
-  --accent: 35 85% 65%;
-  --accent-foreground: 340 15% 15%;
-  --destructive: 0 84.2% 60.2%;
+  /* Secondary: Light Teal */
+  --secondary: 174 28% 92%;
+  --secondary-foreground: 174 35% 22%;
+  /* Muted: Soft Teal-gray */
+  --muted: 174 18% 95%;
+  --muted-foreground: 174 15% 42%;
+  /* Accent: Cyan-teal */
+  --accent: 180 45% 88%;
+  --accent-foreground: 174 50% 25%;
+  --destructive: 0 72% 51%;
   --destructive-foreground: 0 0% 100%;
-  --border: 340 15% 88%;
-  --input: 340 15% 88%;
-  --ring: 340 65% 55%;
+  --border: 174 20% 88%;
+  --input: 174 20% 88%;
+  --ring: 174 58% 39%;
   --radius: 0.75rem;
 }
 
 .dark {
-  /* Cosmetic Store Color Palette - Dark Theme */
-  --background: 340 20% 8%;
-  --foreground: 340 10% 95%;
-  --card: 340 20% 12%;
-  --card-foreground: 340 10% 95%;
-  --popover: 340 20% 12%;
-  --popover-foreground: 340 10% 95%;
-  /* Primary: Softer Rose for dark mode */
-  --primary: 340 60% 65%;
-  --primary-foreground: 340 20% 8%;
-  /* Secondary: Deep Lavender */
-  --secondary: 280 30% 20%;
-  --secondary-foreground: 340 10% 95%;
-  /* Muted: Warm Dark Beige */
-  --muted: 340 15% 18%;
-  --muted-foreground: 340 10% 70%;
-  /* Accent: Warm Gold */
-  --accent: 35 70% 55%;
-  --accent-foreground: 340 20% 8%;
-  --destructive: 0 70% 50%;
-  --destructive-foreground: 340 10% 95%;
-  --border: 340 15% 20%;
-  --input: 340 15% 20%;
-  --ring: 340 60% 65%;
+  /* Dark theme: Deep Teal palette */
+  --background: 174 35% 8%;
+  --foreground: 174 15% 94%;
+  --card: 174 32% 11%;
+  --card-foreground: 174 15% 94%;
+  --popover: 174 32% 11%;
+  --popover-foreground: 174 15% 94%;
+  /* Primary: Bright Teal */
+  --primary: 174 55% 52%;
+  --primary-foreground: 174 35% 8%;
+  /* Secondary: Dark Teal */
+  --secondary: 174 30% 18%;
+  --secondary-foreground: 174 15% 94%;
+  /* Muted: Dark Teal-gray */
+  --muted: 174 25% 15%;
+  --muted-foreground: 174 12% 68%;
+  /* Accent: Medium Teal */
+  --accent: 174 45% 28%;
+  --accent-foreground: 174 20% 92%;
+  --destructive: 0 62% 45%;
+  --destructive-foreground: 174 15% 94%;
+  --border: 174 28% 20%;
+  --input: 174 28% 20%;
+  --ring: 174 55% 52%;
 }
 
 @theme inline {
