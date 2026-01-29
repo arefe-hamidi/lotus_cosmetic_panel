@@ -1,7 +1,7 @@
+// Local Apps
 import { serverProxyFetch } from "@/lib/api/proxyFetch/serverProxyFetch"
-import { NextRequest, NextResponse } from "next/server"
-import { auth } from "@/lib/api/auth/auth"
 import { API_BASE_URL } from "@/lib/configs/constants"
+import { NextRequest, NextResponse } from "next/server"
 
 function isAuthEndpoint(endpoint: string): boolean {
     const authPaths = ["/api/auth/login", "/api/auth/sign-up", "/api/auth/signup", "/api/auth/register"]

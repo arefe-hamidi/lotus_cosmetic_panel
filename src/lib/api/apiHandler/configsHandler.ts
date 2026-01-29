@@ -1,3 +1,4 @@
+// Local Apps
 import { IS_STAGING } from "@/lib/configs/constants"
 import { NextResponse } from "next/server"
 import { iconfigs } from "../types"
@@ -10,8 +11,8 @@ export async function configsHandler() {
         const jwtToken = await getJwtToken()
         const { API_SUB_KEY, API_BASE_URL } = process.env
         const configs: iconfigs = {
-            API_SUB_KEY,
-            API_BASE_URL,
+            API_SUB_KEY: API_SUB_KEY ?? "",
+            API_BASE_URL: API_BASE_URL ,
             jwtToken
         }
 

@@ -1,7 +1,9 @@
+// Local Apps
+import { DEFAULT_LOCALE } from "@/Components/Entity/Locale/constants"
+import { env } from "@/lib/configs/env"
 import { appRoutes } from "@/lib/routes/appRoutes"
 import NextAuth from "next-auth"
 import AzureADB2C from "next-auth/providers/azure-ad-b2c"
-import { DEFAULT_LOCALE } from "@/Components/Entity/Locale/constants"
 import { checkAndRefreshToken } from "./utils/checkAndRefreshToken"
 import { extendJwtPayload } from "./utils/extendJwtPayload"
 
@@ -38,11 +40,11 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     },
     providers: [
         AzureADB2C({
-            clientId: process.env.AUTH_AZURE_AD_B2C_ID || "",
-            clientSecret: process.env.AUTH_AZURE_AD_B2C_SECRET || "",
-            tenantId: process.env.AUTH_AZURE_AD_B2C_TENANT_ID,
+            clientId: env.AUTH_AZURE_AD_B2C_ID ?? "",
+            clientSecret: env.AUTH_AZURE_AD_B2C_SECRET ?? "",
+            tenantId: env.AUTH_AZURE_AD_B2C_TENANT_ID,
             authorization: {
-                url: process.env.AUTH_AZURE_AD_B2C_AUTHORIZE,
+                url: env.AUTH_AZURE_AD_B2C_AUTHORIZE,
                 params: {
                     response_type: "code",
                     scope: "openid profile offline_access",
