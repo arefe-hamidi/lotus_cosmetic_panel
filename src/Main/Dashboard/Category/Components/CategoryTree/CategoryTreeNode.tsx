@@ -26,13 +26,18 @@ export function CategoryTreeNode({
           category.is_active ? "text-muted-foreground" : "text-muted-foreground/50"
         )} />
       )}
-      <div className="flex min-w-0 items-center gap-2">
+      <div className="flex min-w-0 flex-col gap-0.5">
         <div className={cn(
           "truncate",
           category.is_active ? "font-medium" : "font-normal text-muted-foreground"
         )}>
           {category.name}
         </div>
+        {category.parent_name != null && (
+          <div className="truncate text-xs text-muted-foreground">
+            {category.parent_name}
+          </div>
+        )}
       </div>
       <div className="text-xs text-muted-foreground shrink-0">#{category.order}</div>
     </div>
