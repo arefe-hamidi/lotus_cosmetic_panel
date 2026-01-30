@@ -157,14 +157,18 @@ export default function Category({ locale }: iProps) {
       />
 
     
-       { categories&& <CategoryTree
+       { categories && categories.length > 0 ? <CategoryTree
           categories={categories}
           isLoading={isLoading}
           onEdit={handleOpenSheet}
           onDelete={handleDelete}
           onAddChild={handleAddChild}
           dictionary={dictionary}
-        />}
+        />:
+        <div className="text-center py-8 text-muted-foreground">
+       {dictionary.messages.noCategories}
+        </div>
+        }
  
     </div>
   );
