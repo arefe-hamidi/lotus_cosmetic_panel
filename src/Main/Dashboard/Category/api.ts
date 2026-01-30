@@ -9,9 +9,11 @@ export function useGetCategories() {
     queryKey: ["categories", endpoint],
     queryFn: async () => {
       const res = await proxyFetch(endpoint);
+      // Treat 404 as empty list (e.g. no categories yet)
+      if (res.status === 404) return [];
       if (!res.ok) throw res;
-      const body = (await res.json()) as iCategoryListApiResponse<iCategory>;
-      return body.data.results;
+      const body = (await res.json()) as iCategoryListApiResponse<iCategory> | undefined;
+      return body?.data?.results ?? [];
     },
   });
 }
