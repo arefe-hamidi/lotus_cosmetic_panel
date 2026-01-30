@@ -1,4 +1,4 @@
-import { Button } from "@/Components/Shadcn/button"
+import Button from "@/Components/Shadcn/button"
 import { cn } from "@/Components/Shadcn/lib/utils"
 import {
     Pagination,
@@ -28,7 +28,7 @@ import {
 import { getDictionary } from "./i18n"
 import { range } from "./utils"
 
-type PaginationItem = number | "ellipsis"
+type PaginationPageItem = number | "ellipsis"
 
 interface iProps {
     currentPage: number
@@ -68,7 +68,7 @@ export default function FullPagination({
     const from = totalItems === 0 ? 0 : (currentPage - 1) * pageSize + 1
     const to = Math.min(currentPage * pageSize, totalItems)
 
-    const paginationItems = useMemo((): PaginationItem[] => {
+    const paginationItems = useMemo((): PaginationPageItem[] => {
         if (totalPages <= 1) {
             return [1]
         }
@@ -88,13 +88,14 @@ export default function FullPagination({
 
         if (!shouldShowLeftEllipsis && shouldShowRightEllipsis) {
             const leftItemCount = BASE_ITEM_COUNT + 2 * siblingCount
-            const leftRange = range(1, leftItemCount)
+            const leftRange = range(1, Math.min(leftItemCount, totalPages))
             return [...leftRange, "ellipsis", totalPages]
         }
 
         if (shouldShowLeftEllipsis && !shouldShowRightEllipsis) {
             const rightItemCount = BASE_ITEM_COUNT + 2 * siblingCount
-            const rightRange = range(totalPages - rightItemCount + 1, totalPages)
+            const rightStart = Math.max(1, totalPages - rightItemCount + 1)
+            const rightRange = range(rightStart, totalPages)
             return [firstPageIndex, "ellipsis", ...rightRange]
         }
 
@@ -189,7 +190,7 @@ export default function FullPagination({
                         onChange(1, Number(v))
                     }}
                 >
-                    <SelectTrigger className="px-2 font-bold" size="sm">
+                    <SelectTrigger className="h-8 px-2 font-bold">
                         <SelectValue />
                     </SelectTrigger>
                     <SelectContent className="max-h-56">

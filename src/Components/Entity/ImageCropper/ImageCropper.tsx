@@ -1,4 +1,4 @@
-import { Button } from "@/Components/Shadcn/button"
+import Button from "@/Components/Shadcn/button"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/Components/Shadcn/dialog"
 import { iRegularParams } from "@/lib/configs/types"
 import { Check, Crop, X } from "lucide-react"
@@ -68,7 +68,8 @@ export default function ImageCropper({ isOpen, image, type, onClose, onSubmit }:
                         )
                         ctx.restore()
 
-                        // Convert to blob and submit
+                        // Convert to blob and submit (type may be "jpeg" or "image/jpeg")
+                        const mimeType = type.startsWith("image/") ? type : `image/${type}`
                         canvas.toBlob(
                             async blob => {
                                 try {
@@ -83,7 +84,7 @@ export default function ImageCropper({ isOpen, image, type, onClose, onSubmit }:
                                     setIsProcessing(false)
                                 }
                             },
-                            `image/${type}`,
+                            mimeType,
                             0.95
                         )
                     } else {
@@ -147,11 +148,11 @@ export default function ImageCropper({ isOpen, image, type, onClose, onSubmit }:
                     <div className="flex items-center gap-3">
                         <Button variant="outline" onClick={() => onClose()}>
                             <X />
-                            Cancel
+                            {dictionary.cancel}
                         </Button>
                         <Button onClick={submitCropHandler} disabled={isProcessing}>
                             <Check />
-                            {isProcessing ? "Processing..." : "Apply Crop"}
+                            {isProcessing ? dictionary.processing : dictionary.apply}
                         </Button>
                     </div>
                 </div>

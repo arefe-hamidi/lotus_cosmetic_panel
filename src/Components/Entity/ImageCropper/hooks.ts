@@ -23,7 +23,8 @@ export function useCropState(image: string) {
         height: 200
     })
 
-    // Load original image dimensions when component mounts or image changes
+    // Load original image dimensions when component mounts or image changes.
+    // Do not depend on scale: scale changes are handled by other effects; including it would reset crop frame when user adjusts scale.
     useEffect(() => {
         if (image) {
             const img = new Image()
@@ -62,7 +63,7 @@ export function useCropState(image: string) {
                     height: cropHeight
                 })
 
-                // Calculate initial output dimensions
+                // Calculate initial output dimensions (use current scale from closure)
                 const cropFrameScaleX = cropWidth / newCanvasWidth
                 const cropFrameScaleY = cropHeight / newCanvasHeight
 
@@ -74,7 +75,9 @@ export function useCropState(image: string) {
             }
             img.src = image
         }
-    }, [image, scale])
+        // scale intentionally omitted: output dimensions are updated by the scale-change effect
+        // eslint-disable-next-line react-hooks/exhaustive-deps -- scale used for initial calc only
+    }, [image])
 
     // Initialize original dimensions when they're set
     useEffect(() => {

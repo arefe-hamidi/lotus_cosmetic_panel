@@ -1,5 +1,5 @@
 import ImageCropper from "@/Components/Entity/ImageCropper/ImageCropper"
-import { Button } from "@/Components/Shadcn/button"
+import Button from "@/Components/Shadcn/button"
 import { iMedia } from "@/lib/configs/types"
 import { Image as ImageIcon, Trash2, Upload } from "lucide-react"
 import Image from "next/image"
@@ -45,7 +45,11 @@ export default function ImageUploader({
     }, [selectedImage.blobImage])
 
     useEffect(() => {
-        setCurrentImage(image || defaultImage || "")
+        const id = setTimeout(
+            () => setCurrentImage(image || defaultImage || ""),
+            0
+        )
+        return () => clearTimeout(id)
     }, [image, defaultImage])
 
     const removeHandler = async () => {
@@ -150,7 +154,11 @@ export default function ImageUploader({
                     <ImageCropper
                         isOpen={true}
                         image={selectedImage.blobImage}
-                        type={selectedImage.type ?? selectedImage.fileName.split(".").pop()}
+                        type={
+                            selectedImage.type ||
+                            (selectedImage.fileName ? selectedImage.fileName.split(".").pop() : null) ||
+                            "jpeg"
+                        }
                         onClose={closeCropModalHandler}
                         onSubmit={onSubmitHandler}
                     />
@@ -216,7 +224,11 @@ export default function ImageUploader({
                 <ImageCropper
                     isOpen={true}
                     image={selectedImage.blobImage}
-                    type={selectedImage.type ?? selectedImage.fileName.split(".").pop()}
+                    type={
+                        selectedImage.type ||
+                        (selectedImage.fileName ? selectedImage.fileName.split(".").pop() : null) ||
+                        "jpeg"
+                    }
                     onClose={closeCropModalHandler}
                     onSubmit={onSubmitHandler}
                 />
