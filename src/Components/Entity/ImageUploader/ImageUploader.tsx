@@ -1,17 +1,16 @@
 import ImageCropper from "@/Components/Entity/ImageCropper/ImageCropper"
 import Button from "@/Components/Shadcn/button"
-import { iMedia } from "@/lib/configs/types"
 import { Image as ImageIcon, Trash2, Upload } from "lucide-react"
 import Image from "next/image"
 import { useEffect, useRef, useState } from "react"
-import { uploadImage } from "./api"
+import { uploadImage, type iUploadImageResponse } from "./api"
 import { ALLOWED_FILE_TYPES, MAX_FILE_SIZE } from "./constants"
 
 interface iProps {
     image?: string
     defaultImage?: string
     onRemove: () => Promise<boolean>
-    onChange: (image_data: iMedia) => Promise<boolean>
+    onChange: (image_data: iUploadImageResponse) => Promise<boolean>
     onClose?: () => void
     appearance: "BOX" | "ROW"
     triggerLabel: string
@@ -105,22 +104,33 @@ export default function ImageUploader({
                     onChange={val => selectFileHandler(val)}
                 />
                 <div className="flex w-full items-center gap-4">
-                    <div className="bg-muted relative flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-full">
+                    <div className="bg-muted relative aspect-square w-24 shrink-0 overflow-hidden rounded-lg">
                         {currentImage ? (
-                            <Image
-                                src={currentImage}
-                                className="h-auto max-h-20 w-auto max-w-20"
-                                alt="selected image"
-                                width={80}
-                                height={80}
-                            />
+                            currentImage.startsWith("http") ? (
+                                <Image
+                                    src={currentImage}
+                                    alt=""
+                                    fill
+                                    className="object-cover"
+                                    sizes="96px"
+                                    unoptimized
+                                />
+                            ) : (
+                                <Image
+                                    src={currentImage}
+                                    alt=""
+                                    fill
+                                    className="object-cover"
+                                    sizes="96px"
+                                />
+                            )
                         ) : (
                             <div className="flex h-full w-full flex-col items-center justify-center">
                                 <ImageIcon size="32" className="text-muted-foreground" />
                             </div>
                         )}
                         {isLoading && (
-                            <div className="absolute inset-0 flex items-center justify-center rounded-full bg-black/50">
+                            <div className="absolute inset-0 flex items-center justify-center rounded-lg bg-black/50">
                                 <div className="text-xs text-white">Loading...</div>
                             </div>
                         )}
