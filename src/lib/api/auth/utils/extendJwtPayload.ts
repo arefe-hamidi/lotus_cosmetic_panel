@@ -14,6 +14,7 @@ export async function extendJwtPayload(account: Account, token: JWT, profile: Pr
 
     token.id_token = account.id_token
     token.refresh_token = account.refresh_token as string
-    token.expires_at = (profile?.exp as number | undefined) || Math.floor(Date.now() / 1000) + 3600
+    const profileWithExp = profile as { exp?: number }
+    token.expires_at = profileWithExp?.exp ?? Math.floor(Date.now() / 1000) + 3600
     return injectInternalUserDetailsToToken(token)
 }

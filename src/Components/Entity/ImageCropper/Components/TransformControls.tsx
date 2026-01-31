@@ -1,5 +1,5 @@
-import { Button } from "@/Components/Shadcn/button"
-import { Input } from "@/Components/Shadcn/input"
+import Button from "@/Components/Shadcn/button"
+import  Input  from "@/Components/Shadcn/input"
 import { Slider } from "@/Components/Shadcn/slider"
 import { RotateCcw, RotateCw } from "lucide-react"
 import { useState } from "react"
@@ -71,7 +71,7 @@ export default function TransformControls({
                 </div>
                 <Slider
                     value={[scale]}
-                    onValueChange={([value]) => onScaleChange(value)}
+                    onValueChange={([value]: [number]) => onScaleChange(value)}
                     min={0.1}
                     max={3}
                     step={0.1}

@@ -9,7 +9,7 @@ import { cookies } from "next/headers"
 export async function getJwtToken() {
     const cookieStore = await cookies()
     const jwtToken = (await getToken({
-        req: { headers: { cookie: cookieStore.toString() } },
+        req: { headers: { cookie: cookieStore.toString() } } as Parameters<typeof getToken>[0]["req"],
         secret: process.env.AUTH_SECRET,
         raw: false,
         secureCookie: process.env.AUTH_SECURE_COOKIE === "true" || false

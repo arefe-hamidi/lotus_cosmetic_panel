@@ -11,10 +11,17 @@ import { injectInternalUserDetailsToToken } from "./injectInternalUserDetailsToT
  * and update the JWT token with the new id_token,
  * refresh_token, and expires_at and user details
  */
+interface TokenUser {
+    ipAddress?: string;
+    [key: string]: unknown;
+}
+
 export async function checkAndRefreshToken(token: JWT) {
+    const user = token.user as TokenUser | undefined
+    if (!user) return token
     const currentIp = await getIpFromHeaders()
-    const prevIp = token.user.ipAddress
-    if (currentIp && currentIp !== prevIp) token.user.ipAddress = currentIp
+    const prevIp = user.ipAddress
+    if (currentIp && currentIp !== prevIp) user.ipAddress = currentIp
 
     const exp = token.expires_at as number | undefined
     if (!exp) return token

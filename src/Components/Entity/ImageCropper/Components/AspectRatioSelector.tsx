@@ -1,4 +1,4 @@
-import { Button } from "@/Components/Shadcn/button"
+import Button from "@/Components/Shadcn/button"
 import { ASPECT_RATIOS } from "../constants"
 
 interface iProps {

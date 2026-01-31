@@ -1,17 +1,18 @@
 import { iUserRole } from "@/Components/Entity/Roles/types"
-import { User } from "next-auth"
+
+type UserWithIp = { ipAddress?: string;[key: string]: unknown }
 
 /**
  * Check if user's IP is valid for the given role
  */
-export function isValidIpForRole(userRole: iUserRole, user?: User) {
+export function isValidIpForRole(userRole: iUserRole, user?: UserWithIp) {
     if (!user || !user.ipAddress) return false
     if (!userRole.ipRestrictionEnabled) return true
     if (!userRole.whitelistedIpAddresses || userRole.whitelistedIpAddresses.length === 0)
         return true
 
     const userIp = user.ipAddress.trim()
-    return userRole.whitelistedIpAddresses.some(ip => {
+    return userRole.whitelistedIpAddresses.some((ip: string) => {
         const cleanIp = ip.trim()
 
         if (isIpV4(cleanIp)) return userIp === cleanIp
