@@ -32,6 +32,27 @@ export interface iPaginatedResponse<T> {
   results: T[];
 }
 
+/** Product as returned from list API: { status, data: { count, next, previous, results } } */
+export interface iProductListItem {
+  id: number;
+  name: string;
+  short_description: iShortDescription[];
+  category: number;
+  category_name: string;
+  created: string;
+  image_url?: string;
+  is_active: boolean;
+  is_in_stock: boolean;
+  main_image?: string;
+  price: string;
+  stock_quantity: number;
+}
+
+export interface iProductListApiResponse {
+  status: string;
+  data: iPaginatedResponse<iProductListItem>;
+}
+
 export interface iProductRequest {
   name: string;
   description: string;

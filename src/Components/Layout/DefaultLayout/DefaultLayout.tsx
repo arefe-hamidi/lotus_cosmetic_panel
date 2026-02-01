@@ -13,13 +13,15 @@ interface iProps {
 export default function DefaultLayout({ children, locale }: iProps) {
   return (
     <SidebarProvider>
-      <div className="flex h-screen w-full flex-col overflow-hidden">
+      <div className="flex h-full min-h-0 w-full flex-1 flex-col overflow-hidden">
         <DashboardHeader locale={locale} />
-        <div className="flex flex-1 overflow-hidden">
-          <aside className="hidden border-r bg-background md:block">
+        <div className="flex min-h-0 flex-1 overflow-hidden">
+          <aside className="hidden shrink-0 border-r bg-background md:block">
             <Sidebar locale={locale} />
           </aside>
-          <main className="flex-1 overflow-y-auto p-6">{children}</main>
+          <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden p-6">
+            {children}
+          </main>
         </div>
       </div>
     </SidebarProvider>

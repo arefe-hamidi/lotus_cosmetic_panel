@@ -1,28 +1,30 @@
-"use client";
+"use client"
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { toast } from "sonner";
-import type { iLocale } from "@/Components/Entity/Locale/types";
-import { getDictionary } from "./i18n";
-import { useCreateProduct } from "./api";
-import { useGetCategories } from "../../Category/api";
-import type { iProductImage, iProductFormState } from "../type";
-import { parseErrorResponse } from "@/lib/api/utils/parseError";
-import { appRoutes } from "@/lib/routes/appRoutes";
-import { CreateProductsHeader } from "./Components/CreateProductsHeader";
-import { ProductFormFields } from "./Components/ProductFormFields";
-import { ProductFormActions } from "./Components/ProductFormActions";
+import { useState } from "react"
+import { useRouter } from "next/navigation"
+import { toast } from "sonner"
+import type { iLocale } from "@/Components/Entity/Locale/types"
+import { getDictionary } from "./i18n"
+import { useCreateProduct } from "./api"
+import { useGetCategories } from "../../Category/api"
+import type { iProductImage, iProductFormState } from "../type"
+import { parseErrorResponse } from "@/lib/api/utils/parseError"
+import { appRoutes } from "@/lib/routes/appRoutes"
+import Card, { CardContent, CardDescription, CardHeader, CardTitle } from "@/Components/Shadcn/card"
+import { ProductFormFields } from "./Components/ProductFormFields"
+import { ProductFormActions } from "./Components/ProductFormActions"
+import Button from "@/Components/Shadcn/button"
+import { ArrowLeft } from "lucide-react"
 
 interface iProps {
-  locale: iLocale;
+  locale: iLocale
 }
 
 export default function CreateProducts({ locale }: iProps) {
-  const dictionary = getDictionary(locale);
-  const router = useRouter();
-  const { data: categories } = useGetCategories();
-  const createMutation = useCreateProduct();
+  const dictionary = getDictionary(locale)
+  const router = useRouter()
+  const { data: categories } = useGetCategories()
+  const createMutation = useCreateProduct()
 
   const [formData, setFormData] = useState<iProductFormState>({
     name: "",
@@ -33,43 +35,40 @@ export default function CreateProducts({ locale }: iProps) {
     stock_quantity: "",
     is_active: true,
     images: [],
-  });
+  })
 
   const handleAddShortDescription = () => {
     setFormData({
       ...formData,
-      short_description: [
-        ...formData.short_description,
-        { value: "", description: "" },
-      ],
-    });
-  };
+      short_description: [...formData.short_description, { value: "", description: "" }],
+    })
+  }
 
   const handleRemoveShortDescription = (index: number) => {
     setFormData({
       ...formData,
       short_description: formData.short_description.filter((_, i) => i !== index),
-    });
-  };
+    })
+  }
 
   const handleUpdateShortDescription = (
     index: number,
     field: "value" | "description",
     value: string
   ) => {
-    const updated = [...formData.short_description];
-    updated[index] = { ...updated[index], [field]: value };
+    const updated = [...formData.short_description]
+    updated[index] = { ...updated[index], [field]: value }
     setFormData({
       ...formData,
       short_description: updated,
-    });
-  };
+    })
+  }
 
   const handleAddImage = () => {
     const nextOrder =
       formData.images.length > 0
         ? Math.max(...formData.images.map((img) => Number(img.order) ?? 0)) + 1
-        : 0;
+        : 0
     setFormData({
       ...formData,
       images: [
@@ -82,38 +81,38 @@ export default function CreateProducts({ locale }: iProps) {
           order: nextOrder,
         },
       ],
-    });
-  };
+    })
+  }
 
   const handleRemoveImage = (index: number) => {
-    const next = formData.images.filter((_, i) => i !== index);
-    const hadMain = formData.images[index]?.is_main;
+    const next = formData.images.filter((_, i) => i !== index)
+    const hadMain = formData.images[index]?.is_main
     if (hadMain && next.length > 0 && !next.some((img) => img.is_main)) {
-      next[0] = { ...next[0], is_main: true };
+      next[0] = { ...next[0], is_main: true }
     }
-    setFormData({ ...formData, images: next });
-  };
+    setFormData({ ...formData, images: next })
+  }
 
   const handleUpdateImage = (
     index: number,
     field: keyof iProductImage,
     value: string | boolean | number | ""
   ) => {
-    const updated = [...formData.images];
-    updated[index] = { ...updated[index], [field]: value };
+    const updated = [...formData.images]
+    updated[index] = { ...updated[index], [field]: value }
     if (field === "is_main" && value === true) {
       updated.forEach((img, i) => {
-        if (i !== index) updated[i] = { ...img, is_main: false };
-      });
+        if (i !== index) updated[i] = { ...img, is_main: false }
+      })
     }
-    setFormData({ ...formData, images: updated });
-  };
+    setFormData({ ...formData, images: updated })
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+    e.preventDefault()
     if (formData.category === 0) {
-      toast.error("Please select a category");
-      return;
+      toast.error(dictionary.messages.categoryRequired)
+      return
     }
     try {
       const payload = {
@@ -124,46 +123,66 @@ export default function CreateProducts({ locale }: iProps) {
           ...img,
           order: Number(img.order) ?? 0,
         })),
-      };
-      await createMutation.mutateAsync(payload);
-      toast.success(dictionary.messages.success);
-      router.push(appRoutes.dashboard.products.root(locale));
+      }
+      await createMutation.mutateAsync(payload)
+      toast.success(dictionary.messages.success)
+      router.push(appRoutes.dashboard.products.root(locale))
     } catch (error) {
-      console.error("Failed to create product:", error);
-      const errorMessage = await parseErrorResponse(
-        error,
-        dictionary.messages.error
-      );
-      toast.error(errorMessage);
+      console.error("Failed to create product:", error)
+      const errorMessage = await parseErrorResponse(error, dictionary.messages.error)
+      toast.error(errorMessage)
     }
-  };
+  }
 
   return (
     <div className="w-full">
-      <CreateProductsHeader locale={locale} dictionary={dictionary} />
+      <Card>
+        <CardHeader>
+          <div className="flex items-center gap-4">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => router.push(appRoutes.dashboard.products.root(locale))}
+            >
+              <ArrowLeft className="h-4 w-4" />
+            </Button>
+            <div>
+              <CardTitle className="text-2xl font-bold tracking-tight">
+                {dictionary.title}
+              </CardTitle>
+              <CardDescription className="text-muted-foreground">
+                {dictionary.description}
+              </CardDescription>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent className="pt-6">
+          <form
+            onSubmit={handleSubmit}
+            className="space-y-8"
+            noValidate
+          >
+            <ProductFormFields
+              formData={formData}
+              setFormData={setFormData}
+              categories={categories}
+              dictionary={dictionary}
+              onAddShortDescription={handleAddShortDescription}
+              onRemoveShortDescription={handleRemoveShortDescription}
+              onUpdateShortDescription={handleUpdateShortDescription}
+              onAddImage={handleAddImage}
+              onRemoveImage={handleRemoveImage}
+              onUpdateImage={handleUpdateImage}
+            />
 
-      <div className="w-full">
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <ProductFormFields
-            formData={formData}
-            setFormData={setFormData}
-            categories={categories}
-            dictionary={dictionary}
-            onAddShortDescription={handleAddShortDescription}
-            onRemoveShortDescription={handleRemoveShortDescription}
-            onUpdateShortDescription={handleUpdateShortDescription}
-            onAddImage={handleAddImage}
-            onRemoveImage={handleRemoveImage}
-            onUpdateImage={handleUpdateImage}
-          />
-
-          <ProductFormActions
-            locale={locale}
-            dictionary={dictionary}
-            isPending={createMutation.isPending}
-          />
-        </form>
-      </div>
+            <ProductFormActions
+              locale={locale}
+              dictionary={dictionary}
+              isPending={createMutation.isPending}
+            />
+          </form>
+        </CardContent>
+      </Card>
     </div>
-  );
+  )
 }

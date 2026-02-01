@@ -9,6 +9,7 @@ const en = {
   deleteProduct: "Delete Product",
   table: {
     name: "Name",
+    photo: "Photo",
     category: "Category",
     price: "Price",
     stockQuantity: "Stock Quantity",
@@ -34,6 +35,7 @@ const en = {
     deleted: "Product deleted successfully",
     error: "An error occurred while saving the product",
     deleteConfirm: "Are you sure you want to delete this product?",
+    noProducts: "No products found",
   },
 } satisfies iDictionaryBaseStructure;
 
@@ -45,6 +47,7 @@ const fa = {
   deleteProduct: "حذف محصول",
   table: {
     name: "نام",
+    photo: "تصویر",
     category: "دسته بندی",
     price: "قیمت",
     stockQuantity: "موجودی",
@@ -70,6 +73,7 @@ const fa = {
     deleted: "محصول با موفقیت حذف شد",
     error: "خطایی در ذخیره محصول رخ داد",
     deleteConfirm: "آیا از حذف این محصول مطمئن هستید؟",
+    noProducts: "محصولی یافت نشد",
   },
 } satisfies typeof en;
 

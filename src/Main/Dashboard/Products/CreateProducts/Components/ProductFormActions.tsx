@@ -20,17 +20,20 @@ export function ProductFormActions({
   const router = useRouter();
 
   return (
-    <div className="flex justify-end gap-2 pt-4">
-      <Button
-        type="button"
-        variant="outline"
-        onClick={() => router.push(appRoutes.dashboard.products.root(locale))}
-      >
-        {dictionary.form.cancel}
-      </Button>
-      <Button type="submit" disabled={isPending}>
-        {dictionary.form.submit}
-      </Button>
+    <div className="border-t pt-6">
+      <div className="flex flex-wrap justify-end gap-2">
+        <Button
+          type="button"
+          variant="outline"
+          onClick={() => router.push(appRoutes.dashboard.products.root(locale))}
+          disabled={isPending}
+        >
+          {dictionary.form.cancel}
+        </Button>
+        <Button type="submit" disabled={isPending}>
+          {isPending ? dictionary.form.submitting : dictionary.form.submit}
+        </Button>
+      </div>
     </div>
   );
 }

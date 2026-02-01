@@ -1,17 +1,31 @@
 import { proxyFetch } from "@/lib/api/proxyFetch/proxyFetch";
 import { apiRoute } from "@/lib/routes/utils";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import type { iProduct, iProductRequest, iPaginatedResponse } from "./type";
+import type {
+  iProduct,
+  iProductRequest,
+  iProductListItem,
+  iProductListApiResponse,
+} from "./type";
 
-export function useGetProducts() {
-  const endpoint = apiRoute("PRODUCT", "/");
+export function useGetProducts(page: number = 1, pageSize: number = 10) {
+  const endpoint = apiRoute("PRODUCT", "/", {
+    page: String(page),
+    page_size: String(pageSize),
+  });
   return useQuery({
-    queryKey: ["products", endpoint],
+    queryKey: ["products", endpoint, page, pageSize],
     queryFn: async () => {
       const res = await proxyFetch(endpoint);
       if (!res.ok) throw res;
-      const data = (await res.json()) as iPaginatedResponse<iProduct>;
-      return data.results;
+      const body = (await res.json()) as iProductListApiResponse;
+      if (body?.status === "success" && body?.data) {
+        return {
+          results: body.data.results as iProductListItem[],
+          count: body.data.count,
+        };
+      }
+      return { results: [], count: 0 };
     },
   });
 }

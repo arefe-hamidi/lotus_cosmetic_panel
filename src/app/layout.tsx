@@ -34,10 +34,12 @@ export default async function RootLayout({
   return (
     <html className={theme} suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} flex h-screen flex-col overflow-hidden antialiased`}
       >
         <ThemeInit />
-        <QueryProvider>{children}</QueryProvider>
+        <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+          <QueryProvider>{children}</QueryProvider>
+        </div>
         <Toaster />
       </body>
     </html>

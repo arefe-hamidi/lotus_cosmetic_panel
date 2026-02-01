@@ -25,6 +25,7 @@ export function ProductFormSearchableSelect({
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
   const [isOpen, setIsOpen] = useState(false);
+  /** Name from last user selection; used when selectedCategory is not yet available */
   const [selectedName, setSelectedName] = useState<string>("");
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -33,14 +34,13 @@ export function ProductFormSearchableSelect({
     20
   );
 
-  // Set selected category name when value changes
-  useEffect(() => {
-    if (selectedCategory && value === selectedCategory.id) {
-      setSelectedName(selectedCategory.name);
-    } else if (value === null) {
-      setSelectedName("");
-    }
-  }, [value, selectedCategory]);
+  /** Derive display name from props/state to avoid setState in useEffect */
+  const displayName =
+    value === null
+      ? ""
+      : selectedCategory?.id === value
+        ? selectedCategory.name
+        : selectedName;
 
   const filteredResults = searchResults.filter(
     (cat) => cat.id !== undefined
@@ -75,8 +75,7 @@ export function ProductFormSearchableSelect({
   const handleInputChange = (query: string) => {
     setSearchQuery(query);
     setIsOpen(true);
-    // Clear selection if user starts typing different text
-    if (query !== selectedName) {
+    if (query !== displayName) {
       setSelectedName("");
     }
   };
@@ -87,8 +86,7 @@ export function ProductFormSearchableSelect({
 
   const handleInputFocus = () => {
     setIsOpen(true);
-    // Clear the input to show search when focused
-    if (value !== null && selectedName) {
+    if (value !== null && displayName) {
       setSearchQuery("");
       setDebouncedSearchQuery("");
     }
@@ -97,7 +95,7 @@ export function ProductFormSearchableSelect({
   return (
     <div ref={containerRef} className="relative">
       <SearchInput
-        value={searchQuery || selectedName}
+        value={searchQuery || displayName}
         onChange={handleInputChange}
         onDebouncedChange={handleDebouncedChange}
         onFocus={handleInputFocus}

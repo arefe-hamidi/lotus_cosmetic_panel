@@ -30,7 +30,11 @@ export default async function LocaleLayout({ children, params }: iProps) {
   const direction = getTextDirection(validLocale);
 
   return (
-    <div dir={direction} lang={validLocale}>
+    <div
+      dir={direction}
+      lang={validLocale}
+      className="flex min-h-0 flex-1 flex-col overflow-hidden"
+    >
       {children}
     </div>
   );
