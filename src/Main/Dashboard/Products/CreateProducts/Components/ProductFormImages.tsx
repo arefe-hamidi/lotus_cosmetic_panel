@@ -1,6 +1,6 @@
 "use client"
 
-import type { iProductFormState, iProductImage } from "../../type"
+import type { iProductFormState, iProductImage } from "../../types"
 import type { iDictionary } from "../i18n"
 import ImageUploader from "@/Components/Entity/ImageUploader/ImageUploader"
 import Badge from "@/Components/Shadcn/badge"
@@ -34,8 +34,12 @@ export function ProductFormImages({
   /** Display URL from upload response (keyed by path) so image shows even if getMediaUrl env is wrong */
   const [displayUrlByPath, setDisplayUrlByPath] = useState<Record<string, string>>({})
 
-  const getImageUrl = (path: string) =>
-    (path && displayUrlByPath[path]) ?? (path ? getMediaUrl(path) : undefined)
+  /** Resolve display URL: full URL as-is, else upload cache, else getMediaUrl(relative path) for edit mode. */
+  const getImageUrl = (path: string) => {
+    if (!path) return undefined
+    if (path.startsWith("http://") || path.startsWith("https://")) return path
+    return displayUrlByPath[path] ?? getMediaUrl(path)
+  }
 
   return (
     <div className="space-y-5">

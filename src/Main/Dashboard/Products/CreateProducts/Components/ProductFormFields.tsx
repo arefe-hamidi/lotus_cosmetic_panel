@@ -1,6 +1,6 @@
 "use client"
 
-import type { iProductImage, iProductFormState } from "../../type"
+import type { iProductImage, iProductFormState } from "../../types"
 import type { iCategory } from "../../../Category/type"
 import type { iDictionary } from "../i18n"
 import Input from "@/Components/Shadcn/input"

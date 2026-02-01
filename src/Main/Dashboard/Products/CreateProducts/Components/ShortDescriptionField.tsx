@@ -1,7 +1,7 @@
 "use client";
 
 import { Plus, Trash2 } from "lucide-react";
-import type { iShortDescription } from "../../type";
+import type { iShortDescription } from "../../types";
 import type { iDictionary } from "../i18n";
 import Button from "@/Components/Shadcn/button";
 import Card, { CardContent, CardFooter, CardHeader } from "@/Components/Shadcn/card";

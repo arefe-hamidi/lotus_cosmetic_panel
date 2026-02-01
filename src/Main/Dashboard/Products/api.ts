@@ -6,7 +6,47 @@ import type {
   iProductRequest,
   iProductListItem,
   iProductListApiResponse,
-} from "./type";
+} from "./types";
+
+/** Response shape for GET /api/products/:id/ - backend may wrap in { status, data } or return product directly */
+export interface iProductDetailApiResponse {
+  status?: string
+  data?: iProduct | { product?: iProduct }
+  product?: iProduct
+}
+
+function isProductLike(obj: unknown): obj is iProduct {
+  return (
+    typeof obj === "object" &&
+    obj !== null &&
+    "name" in obj &&
+    "category" in obj
+  )
+}
+
+export function useGetProduct(id: number | null) {
+  const endpoint = id != null ? apiRoute("PRODUCT", `/${id}/`) : null
+  return useQuery({
+    queryKey: ["product", id],
+    queryFn: async () => {
+      if (!endpoint) return null
+      const res = await proxyFetch(endpoint)
+      if (!res.ok) throw res
+      const body = (await res.json()) as iProductDetailApiResponse & iProduct
+      if (body?.status === "success" && body?.data) {
+        const data = body.data
+        if (isProductLike(data)) return data as iProduct
+        if (typeof data === "object" && data !== null && "product" in data && isProductLike((data as { product?: iProduct }).product)) {
+          return (data as { product: iProduct }).product
+        }
+      }
+      if (typeof body?.data === "object" && body.data !== null && isProductLike(body.data)) return body.data as iProduct
+      if (isProductLike(body)) return body as iProduct
+      return null
+    },
+    enabled: id != null && id > 0,
+  })
+}
 
 export function useGetProducts(page: number = 1, pageSize: number = 10) {
   const endpoint = apiRoute("PRODUCT", "/", {
@@ -66,6 +106,7 @@ export function useUpdateProduct() {
   });
 }
 
+/** DELETE {{base_url}}/api/products/{{product_id}}/ */
 export function useDeleteProduct() {
   const qc = useQueryClient();
   return useMutation({
@@ -76,8 +117,9 @@ export function useDeleteProduct() {
       });
       if (!res.ok) throw res;
     },
-    onSuccess: () => {
+    onSuccess: (_, id) => {
       qc.invalidateQueries({ queryKey: ["products"] });
+      qc.removeQueries({ queryKey: ["product", id] });
     },
   });
 }

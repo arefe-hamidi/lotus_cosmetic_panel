@@ -4,38 +4,33 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import type { iLocale } from "@/Components/Entity/Locale/types"
-import { getDictionary } from "./i18n"
-import { useCreateProduct } from "../api"
-import { useGetCategories } from "../../Category/api"
-import type { iProductImage, iProductFormState } from "../types"
+import { getDictionary } from "../i18n"
+import { useUpdateProduct, useDeleteProduct } from "../../api"
+import { useGetCategories } from "../../../Category/api"
+import type { iProduct, iProductImage, iProductFormState } from "../../types"
+import { productToFormState } from "../../utils"
 import { parseErrorResponse } from "@/lib/api/utils/parseError"
 import { appRoutes } from "@/lib/routes/appRoutes"
 import Card, { CardContent, CardDescription, CardHeader, CardTitle } from "@/Components/Shadcn/card"
-import { ProductFormFields } from "./Components/ProductFormFields"
-import { ProductFormActions } from "./Components/ProductFormActions"
+import { ProductFormFields } from "../../CreateProducts/Components/ProductFormFields"
+import { ProductFormActions } from "../../CreateProducts/Components/ProductFormActions"
 import Button from "@/Components/Shadcn/button"
-import { ArrowLeft } from "lucide-react"
+import { ArrowLeft, Trash2 } from "lucide-react"
 
 interface iProps {
+  product: iProduct
   locale: iLocale
+  id: number
 }
 
-export default function CreateProducts({ locale }: iProps) {
+export default function EditProductForm({ product, locale, id }: iProps) {
   const dictionary = getDictionary(locale)
   const router = useRouter()
   const { data: categories } = useGetCategories()
-  const createMutation = useCreateProduct()
-
-  const [formData, setFormData] = useState<iProductFormState>({
-    name: "",
-    description: "",
-    short_description: [{ value: "", description: "" }],
-    category: 0,
-    price: "",
-    stock_quantity: "",
-    is_active: true,
-    images: [],
-  })
+  const updateMutation = useUpdateProduct()
+  const deleteMutation = useDeleteProduct()
+  const [formData, setFormData] = useState<iProductFormState>(() => productToFormState(product))
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
 
   const handleAddShortDescription = () => {
     setFormData({
@@ -58,10 +53,7 @@ export default function CreateProducts({ locale }: iProps) {
   ) => {
     const updated = [...formData.short_description]
     updated[index] = { ...updated[index], [field]: value }
-    setFormData({
-      ...formData,
-      short_description: updated,
-    })
+    setFormData({ ...formData, short_description: updated })
   }
 
   const handleAddImage = () => {
@@ -124,12 +116,12 @@ export default function CreateProducts({ locale }: iProps) {
           order: Number(img.order) ?? 0,
         })),
       }
-      await createMutation.mutateAsync(payload)
+      await updateMutation.mutateAsync({ id, data: payload })
       toast.success(dictionary.messages.success)
       router.push(appRoutes.dashboard.products.root(locale))
-    } catch (error) {
-      console.error("Failed to create product:", error)
-      const errorMessage = await parseErrorResponse(error, dictionary.messages.error)
+    } catch (err) {
+      console.error("Failed to update product:", err)
+      const errorMessage = await parseErrorResponse(err, dictionary.messages.error)
       toast.error(errorMessage)
     }
   }
@@ -138,30 +130,28 @@ export default function CreateProducts({ locale }: iProps) {
     <div className="w-full">
       <Card>
         <CardHeader>
-          <div className="flex items-center gap-4">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => router.push(appRoutes.dashboard.products.root(locale))}
-            >
-              <ArrowLeft className="h-4 w-4" />
-            </Button>
-            <div>
-              <CardTitle className="text-2xl font-bold tracking-tight">
-                {dictionary.title}
-              </CardTitle>
-              <CardDescription className="text-muted-foreground">
-                {dictionary.description}
-              </CardDescription>
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => router.push(appRoutes.dashboard.products.root(locale))}
+              >
+                <ArrowLeft className="h-4 w-4" />
+              </Button>
+              <div>
+                <CardTitle className="text-2xl font-bold tracking-tight">
+                  {dictionary.title}
+                </CardTitle>
+                <CardDescription className="text-muted-foreground">
+                  {dictionary.description}
+                </CardDescription>
+              </div>
             </div>
           </div>
         </CardHeader>
         <CardContent className="pt-6">
-          <form
-            onSubmit={handleSubmit}
-            className="space-y-8"
-            noValidate
-          >
+          <form onSubmit={handleSubmit} className="space-y-8" noValidate>
             <ProductFormFields
               formData={formData}
               setFormData={setFormData}
@@ -178,7 +168,7 @@ export default function CreateProducts({ locale }: iProps) {
             <ProductFormActions
               locale={locale}
               dictionary={dictionary}
-              isPending={createMutation.isPending}
+              isPending={updateMutation.isPending}
             />
           </form>
         </CardContent>

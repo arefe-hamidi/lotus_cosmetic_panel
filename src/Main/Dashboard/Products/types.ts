@@ -17,12 +17,25 @@ export interface iProduct {
   description: string;
   short_description: iShortDescription[];
   category: number;
-  price: number;
+  /** API may return string (e.g. "30000.00") or number */
+  price: number | string;
   stock_quantity: number;
   is_active: boolean;
   images?: iProductImage[];
   created?: string;
   updated?: string;
+}
+
+/** Image item as returned by GET /api/products/:id/ (uses image or url for URL) */
+export interface iProductImageApi {
+  id?: number;
+  image?: string;
+  url?: string;
+  path?: string;
+  description?: string;
+  alt_text?: string;
+  is_main?: boolean;
+  order?: number;
 }
 
 export interface iPaginatedResponse<T> {

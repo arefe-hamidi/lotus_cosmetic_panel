@@ -33,6 +33,7 @@ const en = {
   messages: {
     success: "Product saved successfully",
     deleted: "Product deleted successfully",
+    deleting: "Deleting…",
     error: "An error occurred while saving the product",
     deleteConfirm: "Are you sure you want to delete this product?",
     noProducts: "No products found",
@@ -71,6 +72,7 @@ const fa = {
   messages: {
     success: "محصول با موفقیت ذخیره شد",
     deleted: "محصول با موفقیت حذف شد",
+    deleting: "در حال حذف…",
     error: "خطایی در ذخیره محصول رخ داد",
     deleteConfirm: "آیا از حذف این محصول مطمئن هستید؟",
     noProducts: "محصولی یافت نشد",

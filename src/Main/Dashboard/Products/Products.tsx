@@ -3,13 +3,14 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import Image from "next/image"
-import { ImageIcon, Plus, Pencil } from "lucide-react"
+import { ImageIcon, Pencil, Plus, Trash2 } from "lucide-react"
 import { toast } from "sonner"
 import type { iLocale } from "@/Components/Entity/Locale/types"
 import { getDictionary } from "./i18n"
 import { useGetProducts, useDeleteProduct } from "./api"
 import { useGetCategories } from "../Category/api"
-import type { iProductListItem } from "./type"
+import type { iProductListItem } from "./types"
+import { formatPrice, getCategoryName } from "./utils"
 import { parseErrorResponse } from "@/lib/api/utils/parseError"
 import type { iResponsiveColumn } from "@/Components/Entity/ResponsiveTable/types"
 import ResponsiveTable from "@/Components/Entity/ResponsiveTable/ResponsiveTable"
@@ -46,31 +47,18 @@ export default function Products({ locale }: iProps) {
   const [productToDelete, setProductToDelete] = useState<iProductListItem | null>(null)
 
   const handleConfirmDelete = async () => {
-    if (productToDelete?.id) {
-      try {
-        await deleteMutation.mutateAsync(productToDelete.id)
-        toast.success(dictionary.messages.deleted)
-        setProductToDelete(null)
-        setDeleteDialogOpen(false)
-      } catch (error) {
-        console.error("Failed to delete product:", error)
-        const errorMessage = await parseErrorResponse(error, dictionary.messages.error)
-        toast.error(errorMessage)
-      }
+    if (!productToDelete?.id) return
+    try {
+      await deleteMutation.mutateAsync(productToDelete.id)
+      toast.success(dictionary.messages.deleted)
+      setProductToDelete(null)
+      setDeleteDialogOpen(false)
+    } catch (error) {
+      console.error("Failed to delete product:", error)
+      const errorMessage = await parseErrorResponse(error, dictionary.messages.error)
+      toast.error(errorMessage)
+      throw error
     }
-  }
-
-  const getCategoryName = (categoryId: number) => {
-    return categories?.find((c) => c.id === categoryId)?.name || "-"
-  }
-
-  const formatPrice = (price: string | number) => {
-    const num = typeof price === "string" ? parseFloat(price) : price
-    return new Intl.NumberFormat(locale === "fa" ? "fa-IR" : "en-US", {
-      style: "currency",
-      currency: "IRR",
-      minimumFractionDigits: 0,
-    }).format(num)
   }
 
   const handlePaginationChange = (page: number, size: number) => {
@@ -111,13 +99,13 @@ export default function Products({ locale }: iProps) {
       label: dictionary.table.category,
       cell: ({ row }) => (
         <div className="text-muted-foreground">
-          {row.category_name ?? getCategoryName(row.category)}
+          {row.category_name ?? getCategoryName(categories, row.category)}
         </div>
       ),
     },
     {
       label: dictionary.table.price,
-      cell: ({ row }) => <div className="font-medium">{formatPrice(row.price)}</div>,
+      cell: ({ row }) => <div className="font-medium">{formatPrice(locale, row.price)}</div>,
     },
     {
       label: dictionary.table.stockQuantity,
@@ -133,8 +121,9 @@ export default function Products({ locale }: iProps) {
     },
     {
       label: dictionary.table.actions,
+      stickyRight: true,
       cell: ({ row }) => (
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1">
           <Button
             variant="ghost"
             size="icon"
@@ -144,13 +133,24 @@ export default function Products({ locale }: iProps) {
                 router.push(appRoutes.dashboard.products.edit(locale, row.id))
               }
             }}
+            aria-label={dictionary.editProduct}
           >
             <Pencil className="h-4 w-4" />
-            <span className="sr-only">{dictionary.editProduct}</span>
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="text-destructive hover:bg-destructive/10 hover:text-destructive h-8 w-8"
+            onClick={() => {
+              setProductToDelete(row)
+              setDeleteDialogOpen(true)
+            }}
+            aria-label={dictionary.deleteProduct}
+          >
+            <Trash2 className="h-4 w-4" />
           </Button>
         </div>
       ),
-      isDisable: true,
     },
   ]
 
@@ -216,6 +216,9 @@ export default function Products({ locale }: iProps) {
         description={dictionary.messages.deleteConfirm}
         onConfirm={handleConfirmDelete}
         isLoading={deleteMutation.isPending}
+        confirmText={dictionary.deleteProduct}
+        confirmLoadingText={dictionary.messages.deleting}
+        cancelText={dictionary.form.cancel}
       />
     </div>
   )

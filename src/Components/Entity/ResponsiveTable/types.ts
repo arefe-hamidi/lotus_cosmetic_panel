@@ -27,6 +27,8 @@ export interface iResponsiveColumn<T extends iRowData> {
     cell: (params: iRtParams<T>) => ReactNode
     sortField?: string
     isDisable?: boolean
+    /** Keep column visible when table scrolls horizontally (e.g. actions column) */
+    stickyRight?: boolean
 }
 
 export interface iResponsiveTableProps<T extends iRowData> {

@@ -16,9 +16,10 @@ interface iDeleteConfirmationProps {
   onOpenChange: (open: boolean) => void;
   title: string;
   description: string;
-  onConfirm: () => void;
+  onConfirm: () => void | Promise<void>;
   isLoading?: boolean;
   confirmText?: string;
+  confirmLoadingText?: string;
   cancelText?: string;
 }
 
@@ -30,12 +31,17 @@ export default function DeleteConfirmation({
   onConfirm,
   isLoading = false,
   confirmText = "Delete",
+  confirmLoadingText,
   cancelText = "Cancel",
 }: iDeleteConfirmationProps) {
-  const handleConfirm = () => {
-    onConfirm();
-    onOpenChange(false);
-  };
+  const handleConfirm = async () => {
+    try {
+      await Promise.resolve(onConfirm())
+      onOpenChange(false)
+    } catch {
+      // Keep dialog open on error so user can retry or cancel
+    }
+  }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -57,10 +63,10 @@ export default function DeleteConfirmation({
             onClick={handleConfirm}
             disabled={isLoading}
           >
-            {confirmText}
+            {isLoading && confirmLoadingText ? confirmLoadingText : confirmText}
           </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  );
+  )
 }
