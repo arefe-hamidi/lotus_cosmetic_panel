@@ -4,6 +4,7 @@ export const API_BASE_PATH = {
   AUTH: "/api/auth",
   CATEGORY: "/api/categories",
   PRODUCT: "/api/products",
+  BRAND: "/api/brands",
 } as const;
 
 export const TAB_KEY = "tab";

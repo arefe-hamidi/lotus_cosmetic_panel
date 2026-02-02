@@ -10,7 +10,10 @@ interface iProps {
     image?: string
     defaultImage?: string
     onRemove: () => Promise<boolean>
-    onChange: (image_data: iUploadImageResponse) => Promise<boolean>
+    /** When provided, crop result is passed as blob without uploading (e.g. for multipart form submit). */
+    onCropComplete?: (blob: Blob) => Promise<boolean>
+    /** When onCropComplete is not used, upload then call with response. */
+    onChange?: (image_data: iUploadImageResponse) => Promise<boolean>
     onClose?: () => void
     appearance: "BOX" | "ROW"
     triggerLabel: string
@@ -21,6 +24,7 @@ export default function ImageUploader({
     image,
     defaultImage = "",
     onClose,
+    onCropComplete,
     onChange,
     onRemove,
     appearance,
@@ -86,10 +90,16 @@ export default function ImageUploader({
     const onSubmitHandler = async (imageBlob: Blob) => {
         if (!imageBlob) return
         setIsLoading(true)
+        if (onCropComplete) {
+            const readyToClose = await onCropComplete(imageBlob)
+            setIsLoading(false)
+            if (readyToClose) closeCropModalHandler()
+            return
+        }
         const res = await uploadImage(imageBlob, selectedImage.fileName)
         setIsLoading(false)
         if (!res) return
-        const readyToClose = await onChange(res)
+        const readyToClose = await onChange?.(res)
         if (readyToClose) closeCropModalHandler()
     }
 

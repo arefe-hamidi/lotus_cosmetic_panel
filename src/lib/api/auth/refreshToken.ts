@@ -13,7 +13,7 @@ export interface iRefreshResponse {
  * Used by server action and proxyHandler when access token is expired.
  */
 export async function refreshTokensServer(refreshToken: string): Promise<iRefreshResponse> {
-  const endpoint = apiRoute("AUTH", "/refresh/");
+  const endpoint = apiRoute("AUTH", "/token/refresh/");
   const url = endpoint.startsWith("http") ? endpoint : `${API_BASE_URL}${endpoint}`;
 
   const headers: Record<string, string> = {

@@ -1,18 +1,14 @@
 "use client"
-import { refreshTokenAction } from "@/lib/api/auth/actions"
+
+import { logoutAction, refreshTokenAction } from "@/lib/api/auth/actions"
 import { iProxyFetchOptionsWithHeader } from "../types"
 import { NEXT_PUBLIC_API_BASE_URL, NEXT_PUBLIC_API_SUB_KEY } from "../../configs/constants"
 
-const LOGIN_REDIRECT_LOCALE_COOKIE = "user-locale"
-const VALID_LOCALES = ["en", "fa"] as const
-const DEFAULT_LOCALE = "en"
-
 /**
- * Helper function to get cookie value by name
+ * Helper function to get cookie value by name (client-only).
  */
 function getCookie(name: string): string | null {
   if (typeof document === "undefined") return null
-
   const cookies = document.cookie.split(";")
   for (let i = 0; i < cookies.length; i++) {
     const cookie = cookies[i].trim()
@@ -24,32 +20,17 @@ function getCookie(name: string): string | null {
 }
 
 /**
- * Get current locale from pathname or cookie (client-only). Used for 401 redirect.
- */
-function getLocaleForRedirect(): string {
-  if (typeof window === "undefined") return DEFAULT_LOCALE
-  const pathLocale = window.location.pathname.split("/").filter(Boolean)[0]
-  if (pathLocale && VALID_LOCALES.includes(pathLocale as (typeof VALID_LOCALES)[number])) return pathLocale
-  const cookieLocale = getCookie(LOGIN_REDIRECT_LOCALE_COOKIE)
-  if (cookieLocale && VALID_LOCALES.includes(cookieLocale as (typeof VALID_LOCALES)[number])) return cookieLocale
-  return DEFAULT_LOCALE
-}
-
-/**
- * Redirect to login page (used on 401). Replaces history so back button does not return.
- */
-function redirectToLogin(): void {
-  if (typeof window === "undefined") return
-  const locale = getLocaleForRedirect()
-  window.location.replace(`/${locale}/auth/login`)
-}
-
-/**
- * Check if endpoint is an auth endpoint (login, signup, etc.)
+ * Check if endpoint is an auth endpoint (login, signup, refresh, etc.)
  */
 function isAuthEndpoint(endpoint: string): boolean {
-  const authPaths = ["/api/auth/login", "/api/auth/sign-up", "/api/auth/signup", "/api/auth/register"]
-  return authPaths.some(path => endpoint.startsWith(path))
+  const authPaths = [
+    "/api/auth/login",
+    "/api/auth/sign-up",
+    "/api/auth/signup",
+    "/api/auth/register",
+    "/api/auth/token/refresh",
+  ]
+  return authPaths.some((path) => endpoint.startsWith(path))
 }
 
 export interface iClientProxyFetchOptions extends Omit<iProxyFetchOptionsWithHeader, "headers"> {
@@ -112,11 +93,12 @@ export async function clientProxyFetch(
         })
       } catch {
         refreshPromise = null
-        redirectToLogin()
+        await logoutAction()
         throw response
       }
     }
-    redirectToLogin()
+    refreshPromise = null
+    await logoutAction()
     throw response
   }
 

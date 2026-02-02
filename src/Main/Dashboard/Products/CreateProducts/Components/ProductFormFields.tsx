@@ -6,13 +6,7 @@ import type { iDictionary } from "../i18n"
 import Input from "@/Components/Shadcn/input"
 import Label from "@/Components/Shadcn/label"
 import Textarea from "@/Components/Shadcn/textarea"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/Components/Shadcn/select"
+import { Switch } from "@/Components/Shadcn/switch"
 import { ProductFormCategoryTree } from "./ProductFormCategoryTree"
 import { ProductFormImages } from "./ProductFormImages"
 import { ShortDescriptionField } from "./ShortDescriptionField"
@@ -104,22 +98,17 @@ export function ProductFormFields({
                   min="0"
                 />
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="is_active">{dictionary.form.isActive}</Label>
-                <Select
-                  value={formData.is_active.toString()}
-                  onValueChange={(value) =>
-                    setFormData({ ...formData, is_active: value === "true" })
-                  }
-                >
-                  <SelectTrigger id="is_active">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="true">Active</SelectItem>
-                    <SelectItem value="false">Inactive</SelectItem>
-                  </SelectContent>
-                </Select>
+              <div className="flex flex-col justify-end space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="is_active">{dictionary.form.isActive}</Label>
+                  <Switch
+                    id="is_active"
+                    checked={formData.is_active}
+                    onCheckedChange={(checked) =>
+                      setFormData({ ...formData, is_active: checked })
+                    }
+                  />
+                </div>
               </div>
             </div>
           </section>

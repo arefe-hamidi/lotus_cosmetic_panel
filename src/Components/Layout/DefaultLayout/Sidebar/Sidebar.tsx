@@ -1,20 +1,20 @@
-"use client";
+"use client"
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { Package, LayoutDashboard, User, ShoppingBag } from "lucide-react";
-import type { iLocale } from "@/Components/Entity/Locale/types";
-import { getDictionary } from "./i18n";
-import { cn } from "@/Components/Shadcn/lib/utils";
-import { Separator } from "@/Components/Shadcn/separator";
-import Skeleton from "@/Components/Shadcn/skeleton";
-import { useSidebar } from "./SidebarContext";
-import { appRoutes } from "@/lib/routes/appRoutes";
-import { useGetProfile } from "@/lib/api/auth/profile";
+import Link from "next/link"
+import { usePathname } from "next/navigation"
+import { Package, LayoutDashboard, User, ShoppingBag, Building2 } from "lucide-react"
+import type { iLocale } from "@/Components/Entity/Locale/types"
+import { getDictionary } from "./i18n"
+import { cn } from "@/Components/Shadcn/lib/utils"
+import { Separator } from "@/Components/Shadcn/separator"
+import Skeleton from "@/Components/Shadcn/skeleton"
+import { useSidebar } from "./SidebarContext"
+import { appRoutes } from "@/lib/routes/appRoutes"
+import { useGetProfile } from "@/lib/api/auth/profile"
 
 interface iProps {
-  locale: iLocale;
-  onLinkClick?: () => void;
+  locale: iLocale
+  onLinkClick?: () => void
 }
 
 const navItems = [
@@ -29,35 +29,40 @@ const navItems = [
     icon: Package,
   },
   {
-      title:'products',
-      href: (locale: iLocale) => appRoutes.dashboard.products.root(locale),
-      icon: ShoppingBag,
-  }
-];
+    title: "products",
+    href: (locale: iLocale) => appRoutes.dashboard.products.root(locale),
+    icon: ShoppingBag,
+  },
+  {
+    title: "brands",
+    href: (locale: iLocale) => appRoutes.dashboard.brands(locale),
+    icon: Building2,
+  },
+]
 
 export default function Sidebar({ locale, onLinkClick }: iProps) {
-  const dictionary = getDictionary(locale);
-  const pathname = usePathname();
-  const { isCollapsed } = useSidebar();
-  const { data: profile, isLoading: isProfileLoading } = useGetProfile();
+  const dictionary = getDictionary(locale)
+  const pathname = usePathname()
+  const { isCollapsed } = useSidebar()
+  const { data: profile, isLoading: isProfileLoading } = useGetProfile()
 
   return (
     <div
       className={cn(
-        "flex h-full flex-col bg-background transition-all duration-300",
+        "bg-background flex h-full flex-col transition-all duration-300",
         isCollapsed ? "w-16" : "w-64",
         locale === "fa" ? "border-l" : "border-r"
       )}
     >
       <nav className="flex-1 space-y-1 p-4">
         {navItems.map((item) => {
-          const Icon = item.icon;
-          const href = item.href(locale);
+          const Icon = item.icon
+          const href = item.href(locale)
           const isActive =
             item.title === "dashboard"
               ? pathname === href || pathname === `${href}/`
-              : pathname === href || pathname.startsWith(`${href}/`);
-          const navKey = item.title as keyof typeof dictionary.nav;
+              : pathname === href || pathname.startsWith(`${href}/`)
+          const navKey = item.title as keyof typeof dictionary.nav
 
           return (
             <Link
@@ -76,7 +81,7 @@ export default function Sidebar({ locale, onLinkClick }: iProps) {
               <Icon className="h-4 w-4 shrink-0" />
               {!isCollapsed && <span>{dictionary.nav[navKey]}</span>}
             </Link>
-          );
+          )
         })}
       </nav>
       <Separator />
@@ -100,12 +105,12 @@ export default function Sidebar({ locale, onLinkClick }: iProps) {
                 className="h-8 w-8 rounded-full object-cover"
               />
             ) : (
-              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground">
+              <div className="bg-primary text-primary-foreground flex h-8 w-8 items-center justify-center rounded-full">
                 <User className="h-4 w-4" />
               </div>
             )}
             {!isCollapsed && (
-              <div className="flex-1 min-w-0">
+              <div className="min-w-0 flex-1">
                 <div className="truncate text-sm font-medium">
                   {profile.full_name ||
                     (profile.first_name && profile.last_name
@@ -113,12 +118,10 @@ export default function Sidebar({ locale, onLinkClick }: iProps) {
                       : profile.username || "User")}
                 </div>
                 {profile.email && (
-                  <div className="truncate text-xs text-muted-foreground">
-                    {profile.email}
-                  </div>
+                  <div className="text-muted-foreground truncate text-xs">{profile.email}</div>
                 )}
                 {profile.roles && profile.roles.length > 0 && (
-                  <div className="truncate text-xs text-muted-foreground mt-0.5">
+                  <div className="text-muted-foreground mt-0.5 truncate text-xs">
                     {profile.roles.length} {profile.roles.length === 1 ? "role" : "roles"}
                   </div>
                 )}
@@ -127,12 +130,10 @@ export default function Sidebar({ locale, onLinkClick }: iProps) {
           </div>
         ) : (
           !isCollapsed && (
-            <div className="text-xs text-muted-foreground">
-              {dictionary.userInfo.notAvailable}
-            </div>
+            <div className="text-muted-foreground text-xs">{dictionary.userInfo.notAvailable}</div>
           )
         )}
       </div>
     </div>
-  );
+  )
 }

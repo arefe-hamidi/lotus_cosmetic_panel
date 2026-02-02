@@ -6,6 +6,7 @@ const en = {
     dashboard: "Dashboard",
     category: "Category",
     products: "Products",
+    brands: 'Brands'
   },
   userInfo: {
     notAvailable: "User info not available",
@@ -17,6 +18,7 @@ const fa = {
     dashboard: "داشبورد",
     category: "دسته بندی",
     products: "محصولات",
+    brands: 'برند'
   },
   userInfo: {
     notAvailable: "اطلاعات کاربر در دسترس نیست",

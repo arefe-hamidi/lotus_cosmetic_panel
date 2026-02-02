@@ -15,10 +15,11 @@ export const appRoutes = {
     settings: (locale: iLocale, tab?: string) =>
       tabRoute(`/${locale}/dashboard/settings`, tab),
     category: (locale: iLocale) => `/${locale}/dashboard/category`,
-    products:{
+    products: {
       root: (locale: iLocale) => `/${locale}/dashboard/products`,
       create: (locale: iLocale) => `/${locale}/dashboard/products/create`,
       edit: (locale: iLocale, id: number) => `/${locale}/dashboard/products/${id}/edit`,
     },
+    brands: (locale: iLocale) => `/${locale}/dashboard/brands`,
   },
 } as const;
