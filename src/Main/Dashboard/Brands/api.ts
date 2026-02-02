@@ -3,18 +3,38 @@ import { apiRoute } from "@/lib/routes/utils"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import type { iBrand, iBrandListApiResponse, iBrandRequest } from "./type"
 
-export function useGetBrands() {
-  const endpoint = apiRoute("BRAND", "/")
+/**
+ * Same API GET /api/brands/.
+ * - useGetBrands() → no params, returns array (for dropdowns).
+ * - useGetBrands(page, pageSize, search) → with params, returns { results, count } (for list page).
+ */
+export function useGetBrands(
+  page?: number,
+  pageSize?: number,
+  search?: string
+) {
+  const isPaginated = page != null && page >= 1
+  const params: Record<string, string> = {}
+  if (isPaginated) {
+    params.page = String(page)
+    params.page_size = String(pageSize ?? 10)
+    if (search?.trim()) params.search = search.trim()
+  }
+  const endpoint = apiRoute("BRAND", "/", Object.keys(params).length ? params : undefined)
   return useQuery({
-    queryKey: ["brands", endpoint],
+    queryKey: ["brands", endpoint, isPaginated ? page : null, isPaginated ? pageSize : null, isPaginated ? search : null],
     queryFn: async () => {
       const res = await proxyFetch(endpoint)
-      if (res.status === 404) return []
+      if (res.status === 404) {
+        return isPaginated ? { results: [], count: 0 } : []
+      }
       if (!res.ok) throw res
       const body = (await res.json()) as iBrandListApiResponse<iBrand> | undefined
       const data = body?.data
-      if (Array.isArray(data)) return data
-      return data?.results ?? []
+      const results = Array.isArray(data) ? data : (data?.results ?? [])
+      const count = Array.isArray(data) ? data.length : (data?.count ?? results.length)
+      if (isPaginated) return { results, count }
+      return results
     },
   })
 }
@@ -62,6 +82,14 @@ export function useDeleteBrand() {
       const endpoint = apiRoute("BRAND", `/${id}/`)
       const res = await proxyFetch(endpoint, { method: "DELETE" })
       if (!res.ok) throw res
+      // Consume body when present (e.g. 200 with body); 204 No Content has nothing to read
+      if (res.status !== 204) {
+        try {
+          await res.text()
+        } catch {
+          // ignore
+        }
+      }
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["brands"] })

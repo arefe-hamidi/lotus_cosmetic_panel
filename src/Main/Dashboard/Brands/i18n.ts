@@ -7,6 +7,7 @@ const en = {
   addBrand: "Add Brand",
   editBrand: "Edit Brand",
   deleteBrand: "Delete Brand",
+  searchPlaceholder: "Search brands...",
   form: {
     name: "Name",
     namePlaceholder: "Brand name",
@@ -40,6 +41,7 @@ const fa = {
   addBrand: "افزودن برند",
   editBrand: "ویرایش برند",
   deleteBrand: "حذف برند",
+  searchPlaceholder: "جستجوی برندها...",
   form: {
     name: "نام",
     namePlaceholder: "نام برند",

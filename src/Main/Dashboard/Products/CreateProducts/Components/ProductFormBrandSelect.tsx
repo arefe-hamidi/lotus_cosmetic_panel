@@ -27,7 +27,8 @@ export function ProductFormBrandSelect({
   const [selectedName, setSelectedName] = useState<string>("")
   const containerRef = useRef<HTMLDivElement>(null)
 
-  const { data: brands = [], isLoading } = useGetBrands()
+  const { data: brandsData, isLoading } = useGetBrands()
+  const brands = Array.isArray(brandsData) ? brandsData : (brandsData?.results ?? [])
 
   const displayName =
     value === null || value === 0

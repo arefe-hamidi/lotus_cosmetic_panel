@@ -25,7 +25,8 @@ export default function CreateProducts({ locale }: iProps) {
   const dictionary = getDictionary(locale)
   const router = useRouter()
   const { data: categories } = useGetCategories()
-  const { data: brands = [] } = useGetBrands()
+  const { data: brandsData } = useGetBrands()
+  const brands = Array.isArray(brandsData) ? brandsData : (brandsData?.results ?? [])
   const createMutation = useCreateProduct()
 
   const [formData, setFormData] = useState<iProductFormState>({

@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import type { iLocale } from "@/Components/Entity/Locale/types"
 import { getDictionary } from "../i18n"
-import { useUpdateProduct, useDeleteProduct } from "../../api"
+import { useUpdateProduct } from "../../api"
 import { useGetBrands } from "../../../Brands/api"
 import { useGetCategories } from "../../../Category/api"
 import type { iProduct, iProductImage, iProductFormState } from "../../types"
@@ -28,11 +28,10 @@ export default function EditProductForm({ product, locale, id }: iProps) {
   const dictionary = getDictionary(locale)
   const router = useRouter()
   const { data: categories } = useGetCategories()
-  const { data: brands = [] } = useGetBrands()
+  const { data: brandsData } = useGetBrands()
+  const brands = Array.isArray(brandsData) ? brandsData : (brandsData?.results ?? [])
   const updateMutation = useUpdateProduct()
-  const deleteMutation = useDeleteProduct()
   const [formData, setFormData] = useState<iProductFormState>(() => productToFormState(product))
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
 
   const handleAddShortDescription = () => {
     setFormData({

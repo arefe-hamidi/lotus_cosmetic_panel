@@ -52,6 +52,7 @@ export default function DeleteConfirmation({
         </DialogHeader>
         <DialogFooter>
           <Button
+            type="button"
             variant="outline"
             onClick={() => onOpenChange(false)}
             disabled={isLoading}
@@ -59,6 +60,7 @@ export default function DeleteConfirmation({
             {cancelText}
           </Button>
           <Button
+            type="button"
             variant="destructive"
             onClick={handleConfirm}
             disabled={isLoading}

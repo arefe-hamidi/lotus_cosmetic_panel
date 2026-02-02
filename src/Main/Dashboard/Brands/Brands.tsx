@@ -1,8 +1,8 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import Image from "next/image"
-import { Image as ImageIcon, Pencil, Plus, Trash2 } from "lucide-react"
+import { Image as ImageIcon, Pencil, Plus, Search, Trash2 } from "lucide-react"
 import { toast } from "sonner"
 import type { iLocale } from "@/Components/Entity/Locale/types"
 import { getDictionary } from "./i18n"
@@ -20,7 +20,10 @@ import Card, {
   CardHeader,
   CardTitle,
 } from "@/Components/Shadcn/card"
+import Input from "@/Components/Shadcn/input"
 import DeleteConfirmation from "@/Components/Entity/DeleteConfirmation/DeleteConfirmation"
+import FullPagination from "@/Components/Entity/FullPagination/FullPagination"
+import { DEFAULT_CURRENT_PAGE } from "@/Components/Entity/FullPagination/constants"
 import BrandForm from "./Components/BrandForm"
 
 interface iProps {
@@ -29,7 +32,20 @@ interface iProps {
 
 export default function Brands({ locale }: iProps) {
   const dictionary = getDictionary(locale)
-  const { data: brands = [], isLoading } = useGetBrands()
+  const [currentPage, setCurrentPage] = useState(DEFAULT_CURRENT_PAGE)
+  const [pageSize, setPageSize] = useState(10)
+  const [searchQuery, setSearchQuery] = useState("")
+  const [debouncedSearch, setDebouncedSearch] = useState("")
+
+  useEffect(() => {
+    const t = setTimeout(() => setDebouncedSearch(searchQuery), 300)
+    return () => clearTimeout(t)
+  }, [searchQuery])
+
+  const { data, isLoading } = useGetBrands(currentPage, pageSize, debouncedSearch)
+  const brands = Array.isArray(data) ? data : (data?.results ?? [])
+  const totalCount = Array.isArray(data) ? 0 : (data?.count ?? 0)
+  const totalPages = Math.max(1, Math.ceil(totalCount / pageSize))
   const createMutation = useCreateBrand()
   const updateMutation = useUpdateBrand()
   const deleteMutation = useDeleteBrand()
@@ -122,10 +138,26 @@ export default function Brands({ locale }: iProps) {
     }
   }
 
+  const handleSearchChange = (value: string) => {
+    setSearchQuery(value)
+    setCurrentPage(DEFAULT_CURRENT_PAGE)
+  }
+
+  const handlePaginationChange = (page: number, size: number) => {
+    setCurrentPage(page)
+    setPageSize(size)
+  }
+
   const handleConfirmDelete = async () => {
-    if (!brandToDelete?.id) return
+    const id = brandToDelete?.id
+    if (id == null || id === 0) {
+      toast.error(dictionary.messages.error)
+      setDeleteDialogOpen(false)
+      setBrandToDelete(null)
+      return
+    }
     try {
-      await deleteMutation.mutateAsync(brandToDelete.id)
+      await deleteMutation.mutateAsync(id)
       toast.success(dictionary.messages.deleted)
       setBrandToDelete(null)
       setDeleteDialogOpen(false)
@@ -210,7 +242,17 @@ export default function Brands({ locale }: iProps) {
               {dictionary.description}
             </CardDescription>
           </div>
-          <CardActions className="pt-0">
+          <CardActions className="flex flex-wrap items-center gap-3 pt-0">
+            <div className="relative">
+              <Search className="text-muted-foreground pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2" />
+              <Input
+                type="search"
+                value={searchQuery}
+                onChange={(e) => handleSearchChange(e.target.value)}
+                placeholder={dictionary.searchPlaceholder}
+                className="h-9 w-64 pl-9"
+              />
+            </div>
             <Button onClick={handleOpenSheet}>
               <Plus className="mr-2 h-4 w-4" />
               {dictionary.addBrand}
@@ -232,14 +274,25 @@ export default function Brands({ locale }: iProps) {
               <p className="text-sm">{dictionary.messages.noBrands}</p>
             </div>
           ) : (
-            <div className="p-4">
-              <ResponsiveTable
-                data={brands}
-                columns={columns}
-                isFetching={false}
-                emptyMessage={dictionary.messages.noBrands}
-              />
-            </div>
+            <>
+              <div className="p-4">
+                <ResponsiveTable
+                  data={brands}
+                  columns={columns}
+                  isFetching={false}
+                  emptyMessage={dictionary.messages.noBrands}
+                />
+              </div>
+              <div className="px-4 pb-4">
+                <FullPagination
+                  currentPage={currentPage}
+                  totalItems={totalCount}
+                  pageSize={pageSize}
+                  totalPages={totalPages}
+                  onChange={handlePaginationChange}
+                />
+              </div>
+            </>
           )}
         </CardContent>
       </Card>
@@ -261,7 +314,10 @@ export default function Brands({ locale }: iProps) {
 
       <DeleteConfirmation
         open={deleteDialogOpen}
-        onOpenChange={setDeleteDialogOpen}
+        onOpenChange={(open) => {
+          setDeleteDialogOpen(open)
+          if (!open) setBrandToDelete(null)
+        }}
         title={dictionary.deleteBrand}
         description={dictionary.messages.deleteConfirm}
         onConfirm={handleConfirmDelete}
