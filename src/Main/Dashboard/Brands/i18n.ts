@@ -5,6 +5,8 @@ const en = {
   title: "Brands",
   description: "Manage your brands",
   addBrand: "Add Brand",
+  editBrand: "Edit Brand",
+  deleteBrand: "Delete Brand",
   form: {
     name: "Name",
     namePlaceholder: "Brand name",
@@ -26,6 +28,9 @@ const en = {
     success: "Brand saved successfully",
     error: "An error occurred while saving the brand",
     noBrands: "No brands found",
+    deleteConfirm: "Are you sure you want to delete this brand?",
+    deleted: "Brand deleted successfully",
+    deleting: "Deleting…",
   },
 } satisfies iDictionaryBaseStructure
 
@@ -33,6 +38,8 @@ const fa = {
   title: "برندها",
   description: "مدیریت برندها",
   addBrand: "افزودن برند",
+  editBrand: "ویرایش برند",
+  deleteBrand: "حذف برند",
   form: {
     name: "نام",
     namePlaceholder: "نام برند",
@@ -54,6 +61,9 @@ const fa = {
     success: "برند با موفقیت ذخیره شد",
     error: "خطایی در ذخیره برند رخ داد",
     noBrands: "برندی یافت نشد",
+    deleteConfirm: "آیا از حذف این برند اطمینان دارید؟",
+    deleted: "برند با موفقیت حذف شد",
+    deleting: "در حال حذف…",
   },
 } satisfies typeof en
 

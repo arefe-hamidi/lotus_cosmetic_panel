@@ -2,11 +2,11 @@
 
 import { useState } from "react"
 import Image from "next/image"
-import { Image as ImageIcon, Plus } from "lucide-react"
+import { Image as ImageIcon, Pencil, Plus, Trash2 } from "lucide-react"
 import { toast } from "sonner"
 import type { iLocale } from "@/Components/Entity/Locale/types"
 import { getDictionary } from "./i18n"
-import { useGetBrands, useCreateBrand } from "./api"
+import { useGetBrands, useCreateBrand, useUpdateBrand, useDeleteBrand } from "./api"
 import type { iBrand, iBrandFormState } from "./type"
 import { parseErrorResponse } from "@/lib/api/utils/parseError"
 import type { iResponsiveColumn } from "@/Components/Entity/ResponsiveTable/types"
@@ -20,6 +20,7 @@ import Card, {
   CardHeader,
   CardTitle,
 } from "@/Components/Shadcn/card"
+import DeleteConfirmation from "@/Components/Entity/DeleteConfirmation/DeleteConfirmation"
 import BrandForm from "./Components/BrandForm"
 
 interface iProps {
@@ -30,7 +31,12 @@ export default function Brands({ locale }: iProps) {
   const dictionary = getDictionary(locale)
   const { data: brands = [], isLoading } = useGetBrands()
   const createMutation = useCreateBrand()
+  const updateMutation = useUpdateBrand()
+  const deleteMutation = useDeleteBrand()
   const [sheetOpen, setSheetOpen] = useState(false)
+  const [editingBrand, setEditingBrand] = useState<iBrand | null>(null)
+  const [brandToDelete, setBrandToDelete] = useState<iBrand | null>(null)
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [formData, setFormData] = useState<iBrandFormState>({
     name: "",
     is_active: true,
@@ -39,6 +45,7 @@ export default function Brands({ locale }: iProps) {
   })
 
   const handleOpenSheet = () => {
+    setEditingBrand(null)
     if (formData.logoPreviewUrl.startsWith("blob:")) {
       URL.revokeObjectURL(formData.logoPreviewUrl)
     }
@@ -51,21 +58,56 @@ export default function Brands({ locale }: iProps) {
     setSheetOpen(true)
   }
 
+  const handleOpenEdit = (brand: iBrand) => {
+    setEditingBrand(brand)
+    if (formData.logoPreviewUrl.startsWith("blob:")) {
+      URL.revokeObjectURL(formData.logoPreviewUrl)
+    }
+    setFormData({
+      name: brand.name,
+      is_active: brand.is_active !== false,
+      logoFile: null,
+      logoPreviewUrl: brand.logo ?? "",
+    })
+    setSheetOpen(true)
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     try {
-      const body = new FormData()
-      body.append("name", formData.name)
-      body.append("is_active", formData.is_active ? "true" : "false")
-      if (formData.logoFile) {
-        const ext = formData.logoFile.type?.includes("png") ? "png" : "jpg"
-        body.append("logo", formData.logoFile, `logo.${ext}`)
+      if (editingBrand?.id != null) {
+        if (formData.logoFile) {
+          const body = new FormData()
+          body.append("name", formData.name)
+          body.append("is_active", formData.is_active ? "true" : "false")
+          const ext = formData.logoFile.type?.includes("png") ? "png" : "jpg"
+          body.append("logo", formData.logoFile, `logo.${ext}`)
+          await updateMutation.mutateAsync({ id: editingBrand.id, data: body })
+        } else {
+          await updateMutation.mutateAsync({
+            id: editingBrand.id,
+            data: {
+              name: formData.name,
+              is_active: formData.is_active,
+              logo: editingBrand.logo,
+            },
+          })
+        }
+      } else {
+        const body = new FormData()
+        body.append("name", formData.name)
+        body.append("is_active", formData.is_active ? "true" : "false")
+        if (formData.logoFile) {
+          const ext = formData.logoFile.type?.includes("png") ? "png" : "jpg"
+          body.append("logo", formData.logoFile, `logo.${ext}`)
+        }
+        await createMutation.mutateAsync(body)
       }
-      await createMutation.mutateAsync(body)
       toast.success(dictionary.messages.success)
       if (formData.logoPreviewUrl.startsWith("blob:")) {
         URL.revokeObjectURL(formData.logoPreviewUrl)
       }
+      setEditingBrand(null)
       setFormData({
         name: "",
         is_active: true,
@@ -74,9 +116,24 @@ export default function Brands({ locale }: iProps) {
       })
       setSheetOpen(false)
     } catch (error) {
-      console.error("Failed to create brand:", error)
+      console.error("Failed to save brand:", error)
       const errorMessage = await parseErrorResponse(error, dictionary.messages.error)
       toast.error(errorMessage)
+    }
+  }
+
+  const handleConfirmDelete = async () => {
+    if (!brandToDelete?.id) return
+    try {
+      await deleteMutation.mutateAsync(brandToDelete.id)
+      toast.success(dictionary.messages.deleted)
+      setBrandToDelete(null)
+      setDeleteDialogOpen(false)
+    } catch (error) {
+      console.error("Failed to delete brand:", error)
+      const errorMessage = await parseErrorResponse(error, dictionary.messages.error)
+      toast.error(errorMessage)
+      throw error
     }
   }
 
@@ -112,6 +169,35 @@ export default function Brands({ locale }: iProps) {
         </Badge>
       ),
     },
+    {
+      label: dictionary.table.actions,
+      stickyRight: true,
+      cell: ({ row }) => (
+        <div className="flex items-center gap-1">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8"
+            onClick={() => handleOpenEdit(row)}
+            aria-label={dictionary.editBrand}
+          >
+            <Pencil className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="text-destructive hover:bg-destructive/10 hover:text-destructive h-8 w-8"
+            onClick={() => {
+              setBrandToDelete(row)
+              setDeleteDialogOpen(true)
+            }}
+            aria-label={dictionary.deleteBrand}
+          >
+            <Trash2 className="h-4 w-4" />
+          </Button>
+        </div>
+      ),
+    },
   ]
 
   return (
@@ -119,9 +205,7 @@ export default function Brands({ locale }: iProps) {
       <Card>
         <CardHeader className="flex flex-row flex-wrap items-start justify-between gap-4">
           <div className="space-y-1.5">
-            <CardTitle className="text-2xl font-bold tracking-tight">
-              {dictionary.title}
-            </CardTitle>
+            <CardTitle className="text-2xl font-bold tracking-tight">{dictionary.title}</CardTitle>
             <CardDescription className="text-muted-foreground">
               {dictionary.description}
             </CardDescription>
@@ -162,13 +246,29 @@ export default function Brands({ locale }: iProps) {
 
       <BrandForm
         isOpen={sheetOpen}
-        setIsOpen={setSheetOpen}
+        setIsOpen={(open) => {
+          if (!open) setEditingBrand(null)
+          setSheetOpen(open)
+        }}
+        editingBrand={editingBrand}
         formData={formData}
         setFormData={setFormData}
         onSubmit={handleSubmit}
         dictionary={dictionary}
         locale={locale}
-        isPending={createMutation.isPending}
+        isPending={createMutation.isPending || updateMutation.isPending}
+      />
+
+      <DeleteConfirmation
+        open={deleteDialogOpen}
+        onOpenChange={setDeleteDialogOpen}
+        title={dictionary.deleteBrand}
+        description={dictionary.messages.deleteConfirm}
+        onConfirm={handleConfirmDelete}
+        isLoading={deleteMutation.isPending}
+        confirmText={dictionary.deleteBrand}
+        confirmLoadingText={dictionary.messages.deleting}
+        cancelText={dictionary.form.cancel}
       />
     </div>
   )

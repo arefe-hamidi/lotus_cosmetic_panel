@@ -1,7 +1,7 @@
 "use client"
 
 import type { iLocale } from "@/Components/Entity/Locale/types"
-import type { iBrandFormState } from "../type"
+import type { iBrand, iBrandFormState } from "../type"
 import type { iDictionary } from "../i18n"
 import ImageUploader from "@/Components/Entity/ImageUploader/ImageUploader"
 import Button from "@/Components/Shadcn/button"
@@ -19,6 +19,7 @@ import {
 interface iProps {
   isOpen: boolean
   setIsOpen: (open: boolean) => void
+  editingBrand: iBrand | null
   formData: iBrandFormState
   setFormData: (data: iBrandFormState) => void
   onSubmit: (e: React.FormEvent) => void
@@ -30,6 +31,7 @@ interface iProps {
 export default function BrandForm({
   isOpen,
   setIsOpen,
+  editingBrand,
   formData,
   setFormData,
   onSubmit,
@@ -41,7 +43,9 @@ export default function BrandForm({
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
       <SheetContent side={locale === "fa" ? "left" : "right"}>
         <SheetHeader>
-          <SheetTitle>{dictionary.addBrand}</SheetTitle>
+          <SheetTitle>
+            {editingBrand ? dictionary.editBrand : dictionary.addBrand}
+          </SheetTitle>
           <SheetDescription>{dictionary.description}</SheetDescription>
         </SheetHeader>
         <form onSubmit={onSubmit} className="space-y-4 py-4">

@@ -48,13 +48,21 @@ export function useGetProduct(id: number | null) {
   })
 }
 
-export function useGetProducts(page: number = 1, pageSize: number = 10) {
-  const endpoint = apiRoute("PRODUCT", "/", {
+export function useGetProducts(
+  page: number = 1,
+  pageSize: number = 10,
+  search?: string
+) {
+  const params: Record<string, string> = {
     page: String(page),
     page_size: String(pageSize),
-  });
+  };
+  if (search?.trim()) {
+    params.search = search.trim();
+  }
+  const endpoint = apiRoute("PRODUCT", "/", params);
   return useQuery({
-    queryKey: ["products", endpoint, page, pageSize],
+    queryKey: ["products", endpoint, page, pageSize, search],
     queryFn: async () => {
       const res = await proxyFetch(endpoint);
       if (!res.ok) throw res;

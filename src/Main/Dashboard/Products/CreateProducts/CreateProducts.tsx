@@ -6,6 +6,7 @@ import { toast } from "sonner"
 import type { iLocale } from "@/Components/Entity/Locale/types"
 import { getDictionary } from "./i18n"
 import { useCreateProduct } from "../api"
+import { useGetBrands } from "../../Brands/api"
 import { useGetCategories } from "../../Category/api"
 import type { iProductImage, iProductFormState } from "../types"
 import { parseErrorResponse } from "@/lib/api/utils/parseError"
@@ -24,6 +25,7 @@ export default function CreateProducts({ locale }: iProps) {
   const dictionary = getDictionary(locale)
   const router = useRouter()
   const { data: categories } = useGetCategories()
+  const { data: brands = [] } = useGetBrands()
   const createMutation = useCreateProduct()
 
   const [formData, setFormData] = useState<iProductFormState>({
@@ -31,6 +33,7 @@ export default function CreateProducts({ locale }: iProps) {
     description: "",
     short_description: [{ value: "", description: "" }],
     category: 0,
+    brand: 0,
     price: "",
     stock_quantity: "",
     is_active: true,
@@ -166,6 +169,7 @@ export default function CreateProducts({ locale }: iProps) {
               formData={formData}
               setFormData={setFormData}
               categories={categories}
+              brands={brands}
               dictionary={dictionary}
               onAddShortDescription={handleAddShortDescription}
               onRemoveShortDescription={handleRemoveShortDescription}

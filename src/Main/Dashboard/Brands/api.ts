@@ -36,3 +36,35 @@ export function useCreateBrand() {
     },
   })
 }
+
+export function useUpdateBrand() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: async ({ id, data }: { id: number; data: FormData | iBrandRequest }) => {
+      const endpoint = apiRoute("BRAND", `/${id}/`)
+      const res = await proxyFetch(endpoint, {
+        method: "PATCH",
+        body: data,
+      })
+      if (!res.ok) throw res
+      return (await res.json()) as iBrand
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["brands"] })
+    },
+  })
+}
+
+export function useDeleteBrand() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: async (id: number) => {
+      const endpoint = apiRoute("BRAND", `/${id}/`)
+      const res = await proxyFetch(endpoint, { method: "DELETE" })
+      if (!res.ok) throw res
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["brands"] })
+    },
+  })
+}

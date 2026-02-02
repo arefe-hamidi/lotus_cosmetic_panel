@@ -1,12 +1,14 @@
 "use client"
 
 import type { iProductImage, iProductFormState } from "../../types"
+import type { iBrand } from "../../../Brands/type"
 import type { iCategory } from "../../../Category/type"
 import type { iDictionary } from "../i18n"
 import Input from "@/Components/Shadcn/input"
 import Label from "@/Components/Shadcn/label"
 import Textarea from "@/Components/Shadcn/textarea"
 import { Switch } from "@/Components/Shadcn/switch"
+import { ProductFormBrandSelect } from "./ProductFormBrandSelect"
 import { ProductFormCategoryTree } from "./ProductFormCategoryTree"
 import { ProductFormImages } from "./ProductFormImages"
 import { ShortDescriptionField } from "./ShortDescriptionField"
@@ -15,6 +17,7 @@ interface iProductFormFieldsProps {
   formData: iProductFormState
   setFormData: (data: iProductFormState) => void
   categories: iCategory[] | undefined
+  brands: iBrand[] | undefined
   dictionary: iDictionary
   onAddShortDescription: () => void
   onRemoveShortDescription: (index: number) => void
@@ -32,6 +35,7 @@ export function ProductFormFields({
   formData,
   setFormData,
   categories,
+  brands,
   dictionary,
   onAddShortDescription,
   onRemoveShortDescription,
@@ -44,15 +48,31 @@ export function ProductFormFields({
     <div className="space-y-8">
       <section className="space-y-4">
         <div className="grid gap-4 md:grid-cols-1">
-          <div className="space-y-2">
-            <Label htmlFor="name">{dictionary.form.name}</Label>
-            <Input
-              id="name"
-              value={formData.name}
-              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              placeholder={dictionary.form.namePlaceholder}
-              required
-            />
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <div className="space-y-2">
+              <Label htmlFor="name">{dictionary.form.name}</Label>
+              <Input
+                id="name"
+                value={formData.name}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                placeholder={dictionary.form.namePlaceholder}
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="brand">{dictionary.form.brand}</Label>
+              <ProductFormBrandSelect
+                value={formData.brand === 0 ? null : formData.brand}
+                onChange={(brandId) =>
+                  setFormData({
+                    ...formData,
+                    brand: brandId ?? 0,
+                  })
+                }
+                placeholder={dictionary.form.brandPlaceholder}
+                selectedBrand={brands?.find((b) => b.id === formData.brand)}
+              />
+            </div>
           </div>
           <section className="space-y-4">
             <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
@@ -98,17 +118,14 @@ export function ProductFormFields({
                   min="0"
                 />
               </div>
-              <div className="flex flex-col justify-end space-y-2">
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="is_active">{dictionary.form.isActive}</Label>
-                  <Switch
-                    id="is_active"
-                    checked={formData.is_active}
-                    onCheckedChange={(checked) =>
-                      setFormData({ ...formData, is_active: checked })
-                    }
-                  />
-                </div>
+
+              <div className="flex items-center justify-between">
+                <Label htmlFor="is_active">{dictionary.form.isActive}</Label>
+                <Switch
+                  id="is_active"
+                  checked={formData.is_active}
+                  onCheckedChange={(checked) => setFormData({ ...formData, is_active: checked })}
+                />
               </div>
             </div>
           </section>

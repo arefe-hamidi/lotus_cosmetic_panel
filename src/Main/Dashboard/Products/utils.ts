@@ -66,6 +66,7 @@ export function productToFormState(product: iProduct): iProductFormState {
     description: product.description ?? "",
     short_description,
     category: product.category ?? 0,
+    brand: product.brand ?? 0,
     price,
     stock_quantity,
     is_active: product.is_active ?? true,

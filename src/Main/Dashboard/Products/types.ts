@@ -17,6 +17,7 @@ export interface iProduct {
   description: string;
   short_description: iShortDescription[];
   category: number;
+  brand?: number;
   /** API may return string (e.g. "30000.00") or number */
   price: number | string;
   stock_quantity: number;
@@ -71,6 +72,7 @@ export interface iProductRequest {
   description: string;
   short_description: iShortDescription[];
   category: number;
+  brand: number;
   price: number;
   stock_quantity: number;
   is_active: boolean;

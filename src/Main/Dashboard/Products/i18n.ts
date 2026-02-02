@@ -7,6 +7,7 @@ const en = {
   addProduct: "Add Product",
   editProduct: "Edit Product",
   deleteProduct: "Delete Product",
+  searchPlaceholder: "Search products...",
   table: {
     name: "Name",
     photo: "Photo",
@@ -46,6 +47,7 @@ const fa = {
   addProduct: "افزودن محصول",
   editProduct: "ویرایش محصول",
   deleteProduct: "حذف محصول",
+  searchPlaceholder: "جستجوی محصولات...",
   table: {
     name: "نام",
     photo: "تصویر",

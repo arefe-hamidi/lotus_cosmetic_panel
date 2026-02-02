@@ -1,9 +1,9 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import Image from "next/image"
-import { ImageIcon, Pencil, Plus, Trash2 } from "lucide-react"
+import { ImageIcon, Pencil, Plus, Search, Trash2 } from "lucide-react"
 import { toast } from "sonner"
 import type { iLocale } from "@/Components/Entity/Locale/types"
 import { getDictionary } from "./i18n"
@@ -23,6 +23,7 @@ import Card, {
   CardHeader,
   CardTitle,
 } from "@/Components/Shadcn/card"
+import Input from "@/Components/Shadcn/input"
 import DeleteConfirmation from "@/Components/Entity/DeleteConfirmation/DeleteConfirmation"
 import FullPagination from "@/Components/Entity/FullPagination/FullPagination"
 import { appRoutes } from "@/lib/routes/appRoutes"
@@ -37,7 +38,15 @@ export default function Products({ locale }: iProps) {
   const router = useRouter()
   const [currentPage, setCurrentPage] = useState(DEFAULT_CURRENT_PAGE)
   const [pageSize, setPageSize] = useState(10)
-  const { data, isLoading } = useGetProducts(currentPage, pageSize)
+  const [searchQuery, setSearchQuery] = useState("")
+  const [debouncedSearch, setDebouncedSearch] = useState("")
+
+  useEffect(() => {
+    const t = setTimeout(() => setDebouncedSearch(searchQuery), 300)
+    return () => clearTimeout(t)
+  }, [searchQuery])
+
+  const { data, isLoading } = useGetProducts(currentPage, pageSize, debouncedSearch)
   const products = data?.results ?? []
   const totalCount = data?.count ?? 0
   const totalPages = Math.max(1, Math.ceil(totalCount / pageSize))
@@ -45,6 +54,11 @@ export default function Products({ locale }: iProps) {
   const deleteMutation = useDeleteProduct()
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [productToDelete, setProductToDelete] = useState<iProductListItem | null>(null)
+
+  const handleSearchChange = (value: string) => {
+    setSearchQuery(value)
+    setCurrentPage(DEFAULT_CURRENT_PAGE)
+  }
 
   const handleConfirmDelete = async () => {
     if (!productToDelete?.id) return
@@ -164,7 +178,17 @@ export default function Products({ locale }: iProps) {
               {dictionary.description}
             </CardDescription>
           </div>
-          <CardActions className="pt-0">
+          <CardActions className="flex flex-wrap items-center gap-3 pt-0">
+            <div className="relative">
+              <Search className="text-muted-foreground pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2" />
+              <Input
+                type="search"
+                value={searchQuery}
+                onChange={(e) => handleSearchChange(e.target.value)}
+                placeholder={dictionary.searchPlaceholder}
+                className="h-9 w-64 pl-9"
+              />
+            </div>
             <Button onClick={() => router.push(appRoutes.dashboard.products.create(locale))}>
               <Plus className="mr-2 h-4 w-4" />
               {dictionary.addProduct}

@@ -6,6 +6,7 @@ import { toast } from "sonner"
 import type { iLocale } from "@/Components/Entity/Locale/types"
 import { getDictionary } from "../i18n"
 import { useUpdateProduct, useDeleteProduct } from "../../api"
+import { useGetBrands } from "../../../Brands/api"
 import { useGetCategories } from "../../../Category/api"
 import type { iProduct, iProductImage, iProductFormState } from "../../types"
 import { productToFormState } from "../../utils"
@@ -15,7 +16,7 @@ import Card, { CardContent, CardDescription, CardHeader, CardTitle } from "@/Com
 import { ProductFormFields } from "../../CreateProducts/Components/ProductFormFields"
 import { ProductFormActions } from "../../CreateProducts/Components/ProductFormActions"
 import Button from "@/Components/Shadcn/button"
-import { ArrowLeft, Trash2 } from "lucide-react"
+import { ArrowLeft } from "lucide-react"
 
 interface iProps {
   product: iProduct
@@ -27,6 +28,7 @@ export default function EditProductForm({ product, locale, id }: iProps) {
   const dictionary = getDictionary(locale)
   const router = useRouter()
   const { data: categories } = useGetCategories()
+  const { data: brands = [] } = useGetBrands()
   const updateMutation = useUpdateProduct()
   const deleteMutation = useDeleteProduct()
   const [formData, setFormData] = useState<iProductFormState>(() => productToFormState(product))
@@ -156,6 +158,7 @@ export default function EditProductForm({ product, locale, id }: iProps) {
               formData={formData}
               setFormData={setFormData}
               categories={categories}
+              brands={brands}
               dictionary={dictionary}
               onAddShortDescription={handleAddShortDescription}
               onRemoveShortDescription={handleRemoveShortDescription}
