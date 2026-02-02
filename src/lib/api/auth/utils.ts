@@ -1,5 +1,12 @@
 "use client";
 
+const AUTH_TOKEN_COOKIE = "auth-token";
+const AUTH_REFRESH_COOKIE = "auth-refresh-token";
+
+function getCookieMaxAge(rememberMe: boolean): number {
+  return rememberMe ? 30 * 24 * 60 * 60 : 24 * 60 * 60; // 30 days or 1 day
+}
+
 export function setAuthToken(token: string, rememberMe: boolean = false) {
   if (typeof document === "undefined") {
     console.warn("[setAuthToken] document is undefined, cannot set cookie");
@@ -11,20 +18,30 @@ export function setAuthToken(token: string, rememberMe: boolean = false) {
     return;
   }
 
-  const maxAge = rememberMe ? 30 * 24 * 60 * 60 : 24 * 60 * 60; // 30 days or 1 day
-  // Encode the token to handle special characters
+  const maxAge = getCookieMaxAge(rememberMe);
   const encodedToken = encodeURIComponent(token);
-  document.cookie = `auth-token=${encodedToken}; path=/; max-age=${maxAge}; SameSite=Lax`;
-  
-  console.log("[setAuthToken] ✅ Cookie set:", {
-    tokenLength: token.length,
-    encodedLength: encodedToken.length,
-    maxAge,
-    rememberMe,
-  });
+  document.cookie = `${AUTH_TOKEN_COOKIE}=${encodedToken}; path=/; max-age=${maxAge}; SameSite=Lax`;
+}
+
+export function setRefreshToken(refreshToken: string, rememberMe: boolean = false) {
+  if (typeof document === "undefined") return;
+  if (!refreshToken || refreshToken.trim().length === 0) return;
+  const maxAge = getCookieMaxAge(rememberMe);
+  const encoded = encodeURIComponent(refreshToken);
+  document.cookie = `${AUTH_REFRESH_COOKIE}=${encoded}; path=/; max-age=${maxAge}; SameSite=Lax`;
 }
 
 export function removeAuthToken() {
   if (typeof document === "undefined") return;
-  document.cookie = "auth-token=; path=/; max-age=0; SameSite=Lax";
+  document.cookie = `${AUTH_TOKEN_COOKIE}=; path=/; max-age=0; SameSite=Lax`;
+}
+
+export function removeRefreshToken() {
+  if (typeof document === "undefined") return;
+  document.cookie = `${AUTH_REFRESH_COOKIE}=; path=/; max-age=0; SameSite=Lax`;
+}
+
+export function removeAllAuthCookies() {
+  removeAuthToken();
+  removeRefreshToken();
 }

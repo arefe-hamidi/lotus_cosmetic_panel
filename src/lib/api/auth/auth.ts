@@ -33,6 +33,11 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             return await checkAndRefreshToken(token)
         },
         async session({ session, token }) {
+            if (token.error === "RefreshAccessTokenError") {
+                session.error = "RefreshAccessTokenError"
+                session.user = undefined
+                return session
+            }
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             session.user = token.user as any
             return session

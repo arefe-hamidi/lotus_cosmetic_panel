@@ -1,7 +1,12 @@
 // Local Apps
+import { refreshTokensServer } from "@/lib/api/auth/refreshToken"
 import { serverProxyFetch } from "@/lib/api/proxyFetch/serverProxyFetch"
 import { API_BASE_URL } from "@/lib/configs/constants"
 import { NextRequest, NextResponse } from "next/server"
+
+const AUTH_TOKEN_COOKIE = "auth-token"
+const AUTH_REFRESH_COOKIE = "auth-refresh-token"
+const COOKIE_MAX_AGE_30_DAYS = 30 * 24 * 60 * 60
 
 function isAuthEndpoint(endpoint: string): boolean {
     const authPaths = ["/api/auth/login", "/api/auth/sign-up", "/api/auth/signup", "/api/auth/register"]
@@ -111,16 +116,53 @@ export async function proxyHandler(req: NextRequest, { params }: { params: Promi
         console.log(`[ProxyHandler] Calling backend: ${method} ${endpoint}`)
         console.log(`[ProxyHandler] Request headers:`, requestHeaders)
         console.log(`[ProxyHandler] Request body:`, typeof requestBody === "object" ? JSON.stringify(requestBody) : requestBody)
-        
-        const proxyRes = await serverProxyFetch(endpoint, {
+
+        let proxyRes = await serverProxyFetch(endpoint, {
             method,
             headers: requestHeaders,
             body: requestBody
         })
-        
+
+        // On 401, try to refresh token and retry once
+        if (proxyRes.status === 401 && !isAuth) {
+            const refreshRaw = req.cookies.get(AUTH_REFRESH_COOKIE)?.value
+            if (refreshRaw) {
+                try {
+                    const refreshToken = decodeURIComponent(refreshRaw).trim()
+                    if (refreshToken) {
+                        const { access, refresh } = await refreshTokensServer(refreshToken)
+                        const newHeaders = { ...requestHeaders, "x-auth-token": access }
+                        proxyRes = await serverProxyFetch(endpoint, {
+                            method,
+                            headers: newHeaders,
+                            body: requestBody
+                        })
+                        const responseHeaders = cleanupHeaders(proxyRes.headers)
+                        const res = new NextResponse(await proxyRes.text(), {
+                            status: proxyRes.status,
+                            statusText: proxyRes.statusText,
+                            headers: responseHeaders
+                        })
+                        res.headers.append(
+                            "Set-Cookie",
+                            `${AUTH_TOKEN_COOKIE}=${encodeURIComponent(access)}; Path=/; Max-Age=${COOKIE_MAX_AGE_30_DAYS}; SameSite=Lax`
+                        )
+                        if (refresh) {
+                            res.headers.append(
+                                "Set-Cookie",
+                                `${AUTH_REFRESH_COOKIE}=${encodeURIComponent(refresh)}; Path=/; Max-Age=${COOKIE_MAX_AGE_30_DAYS}; SameSite=Lax`
+                            )
+                        }
+                        return res
+                    }
+                } catch (refreshError) {
+                    console.error("[ProxyHandler] Token refresh failed:", refreshError)
+                }
+            }
+        }
+
         console.log(`[ProxyHandler] Backend response status: ${proxyRes.status}`)
-        
-        // Read response body safely
+
         let responseBody: string = ""
         try {
             responseBody = await proxyRes.text()
@@ -129,7 +171,7 @@ export async function proxyHandler(req: NextRequest, { params }: { params: Promi
             console.error("[ProxyHandler] Error reading response body:", bodyError)
             responseBody = ""
         }
-        
+
         return new NextResponse(responseBody, {
             status: proxyRes.status,
             statusText: proxyRes.statusText,

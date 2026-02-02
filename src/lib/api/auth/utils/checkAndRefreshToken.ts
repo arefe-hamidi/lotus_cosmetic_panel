@@ -42,8 +42,11 @@ export async function checkAndRefreshToken(token: JWT) {
         token.expires_at = decodedToken?.exp || expires_at
         return injectInternalUserDetailsToToken(token)
     } catch (error) {
-        console.error(error)
-        throw new Error("auth.ts: Failed to refresh token")
+        console.error("[checkAndRefreshToken] Refresh failed:", error)
+        // Don't throw: return token with error so session callback can clear user and redirect to sign-in
+        token.error = "RefreshAccessTokenError"
+        token.user = undefined
+        return token
     }
 }
 

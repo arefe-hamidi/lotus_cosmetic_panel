@@ -9,7 +9,7 @@ import type { iLocale } from "@/Components/Entity/Locale/types";
 import { getDictionary } from "./i18n";
 import { login } from "./api";
 import { appRoutes } from "@/lib/routes/appRoutes";
-import { setAuthToken } from "@/lib/api/auth/utils";
+import { setAuthToken, setRefreshToken } from "@/lib/api/auth/utils";
 import Button from "@/Components/Shadcn/button";
 import Input from "@/Components/Shadcn/input";
 import Label from "@/Components/Shadcn/label";
@@ -52,7 +52,10 @@ export default function Login({ locale }: iProps) {
       }
 
       setAuthToken(response.access, rememberMe);
-      
+      if (response.refresh) {
+        setRefreshToken(response.refresh, rememberMe);
+      }
+
       // Verify cookie was set
       const cookieValue = document.cookie
         .split("; ")
