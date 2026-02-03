@@ -1,7 +1,7 @@
 "use client"
 
 import type { iLocale } from "@/Components/Entity/Locale/types"
-import type { iBrand, iBrandFormState } from "../type"
+import type { iBrand, iBrandFormState } from "../types"
 import type { iDictionary } from "../i18n"
 import ImageUploader from "@/Components/Entity/ImageUploader/ImageUploader"
 import Button from "@/Components/Shadcn/button"

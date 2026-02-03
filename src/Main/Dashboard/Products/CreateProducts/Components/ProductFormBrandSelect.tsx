@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useMemo } from "react"
 import { Check } from "lucide-react"
-import type { iBrand } from "../../../Brands/type"
+import type { iBrand } from "../../../Brands/types"
 import { useGetBrands } from "../../../Brands/api"
 import SearchInput from "@/Components/Entity/SearchInput/SearchInput"
 import { cn } from "@/Components/Shadcn/lib/utils"

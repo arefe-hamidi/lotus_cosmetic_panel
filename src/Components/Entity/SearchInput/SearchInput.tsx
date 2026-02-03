@@ -8,11 +8,15 @@ import { cn } from "@/Components/Shadcn/lib/utils";
 interface iSearchInputProps {
   value: string;
   onChange: (value: string) => void;
+  /** Called after debounce. Passes empty string until value has at least minSearchLength characters. */
   onDebouncedChange?: (value: string) => void;
   onFocus?: () => void;
   placeholder?: string;
   disabled?: boolean;
+  /** Debounce delay in ms before calling onDebouncedChange. Default 300. */
   debounceMs?: number;
+  /** Only pass non-empty value to onDebouncedChange when length >= this. Default 3. */
+  minSearchLength?: number;
   showClearButton?: boolean;
   className?: string;
 }
@@ -41,16 +45,20 @@ export default function SearchInput({
   placeholder = "Search...",
   disabled = false,
   debounceMs = 300,
+  minSearchLength = 3,
   showClearButton = true,
   className,
 }: iSearchInputProps) {
   const debouncedValue = useDebounce(value, debounceMs);
 
+  const effectiveSearch =
+    debouncedValue.trim().length >= minSearchLength ? debouncedValue.trim() : "";
+
   useEffect(() => {
     if (onDebouncedChange) {
-      onDebouncedChange(debouncedValue);
+      onDebouncedChange(effectiveSearch);
     }
-  }, [debouncedValue, onDebouncedChange]);
+  }, [effectiveSearch, onDebouncedChange]);
 
   const handleClear = () => {
     onChange("");

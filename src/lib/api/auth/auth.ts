@@ -34,9 +34,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         },
         async session({ session, token }) {
             if (token.error === "RefreshAccessTokenError") {
-                session.error = "RefreshAccessTokenError"
-                session.user = undefined
-                return session
+                const sessionWithError = session as typeof session & { error?: string }
+                sessionWithError.error = "RefreshAccessTokenError"
+                sessionWithError.user = undefined
+                return sessionWithError
             }
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             session.user = token.user as any

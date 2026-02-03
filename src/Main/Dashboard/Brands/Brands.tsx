@@ -1,17 +1,17 @@
 "use client"
 
-import { useEffect, useState } from "react"
-import Image from "next/image"
-import { Image as ImageIcon, Pencil, Plus, Search, Trash2 } from "lucide-react"
+import { useState } from "react"
+import { Plus, Search } from "lucide-react"
 import { toast } from "sonner"
 import type { iLocale } from "@/Components/Entity/Locale/types"
+import { appRoutes } from "@/lib/routes/appRoutes"
+import { useTableUrlState } from "@/lib/hooks/useTableUrlState"
 import { getDictionary } from "./i18n"
 import { useGetBrands, useCreateBrand, useUpdateBrand, useDeleteBrand } from "./api"
-import type { iBrand, iBrandFormState } from "./type"
+import type { iBrand, iBrandFormState } from "./types"
+import { getBrandTableColumns } from "./utils"
 import { parseErrorResponse } from "@/lib/api/utils/parseError"
-import type { iResponsiveColumn } from "@/Components/Entity/ResponsiveTable/types"
 import ResponsiveTable from "@/Components/Entity/ResponsiveTable/ResponsiveTable"
-import Badge from "@/Components/Shadcn/badge"
 import Button from "@/Components/Shadcn/button"
 import Card, {
   CardActions,
@@ -23,7 +23,6 @@ import Card, {
 import Input from "@/Components/Shadcn/input"
 import DeleteConfirmation from "@/Components/Entity/DeleteConfirmation/DeleteConfirmation"
 import FullPagination from "@/Components/Entity/FullPagination/FullPagination"
-import { DEFAULT_CURRENT_PAGE } from "@/Components/Entity/FullPagination/constants"
 import BrandForm from "./Components/BrandForm"
 
 interface iProps {
@@ -32,17 +31,16 @@ interface iProps {
 
 export default function Brands({ locale }: iProps) {
   const dictionary = getDictionary(locale)
-  const [currentPage, setCurrentPage] = useState(DEFAULT_CURRENT_PAGE)
-  const [pageSize, setPageSize] = useState(10)
-  const [searchQuery, setSearchQuery] = useState("")
-  const [debouncedSearch, setDebouncedSearch] = useState("")
+  const {
+    currentPage,
+    pageSize,
+    searchQuery,
+    debouncedSearch,
+    setSearchQuery,
+    handlePaginationChange,
+  } = useTableUrlState({ basePath: appRoutes.dashboard.brands(locale) })
 
-  useEffect(() => {
-    const t = setTimeout(() => setDebouncedSearch(searchQuery), 300)
-    return () => clearTimeout(t)
-  }, [searchQuery])
-
-  const { data, isLoading } = useGetBrands(currentPage, pageSize, debouncedSearch)
+  const { data, isLoading, error, refetch } = useGetBrands(currentPage, pageSize, debouncedSearch)
   const brands = Array.isArray(data) ? data : (data?.results ?? [])
   const totalCount = Array.isArray(data) ? 0 : (data?.count ?? 0)
   const totalPages = Math.max(1, Math.ceil(totalCount / pageSize))
@@ -140,12 +138,6 @@ export default function Brands({ locale }: iProps) {
 
   const handleSearchChange = (value: string) => {
     setSearchQuery(value)
-    setCurrentPage(DEFAULT_CURRENT_PAGE)
-  }
-
-  const handlePaginationChange = (page: number, size: number) => {
-    setCurrentPage(page)
-    setPageSize(size)
   }
 
   const handleConfirmDelete = async () => {
@@ -169,68 +161,13 @@ export default function Brands({ locale }: iProps) {
     }
   }
 
-  const columns: iResponsiveColumn<iBrand>[] = [
-    {
-      label: dictionary.table.logo,
-      cell: ({ row }) => (
-        <div className="bg-muted flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-lg">
-          {row.logo ? (
-            <Image
-              src={row.logo}
-              alt={row.name}
-              width={40}
-              height={40}
-              className="h-full w-full object-cover"
-              unoptimized
-            />
-          ) : (
-            <ImageIcon className="text-muted-foreground size-5" />
-          )}
-        </div>
-      ),
+  const columns = getBrandTableColumns(dictionary, {
+    onEdit: handleOpenEdit,
+    onDelete: (row) => {
+      setBrandToDelete(row)
+      setDeleteDialogOpen(true)
     },
-    {
-      label: dictionary.table.name,
-      cell: ({ row }) => <div className="font-medium">{row.name}</div>,
-    },
-    {
-      label: dictionary.table.status,
-      cell: ({ row }) => (
-        <Badge variant={row.is_active !== false ? "default" : "secondary"}>
-          {row.is_active !== false ? "Active" : "Inactive"}
-        </Badge>
-      ),
-    },
-    {
-      label: dictionary.table.actions,
-      stickyRight: true,
-      cell: ({ row }) => (
-        <div className="flex items-center gap-1">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-8 w-8"
-            onClick={() => handleOpenEdit(row)}
-            aria-label={dictionary.editBrand}
-          >
-            <Pencil className="h-4 w-4" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="text-destructive hover:bg-destructive/10 hover:text-destructive h-8 w-8"
-            onClick={() => {
-              setBrandToDelete(row)
-              setDeleteDialogOpen(true)
-            }}
-            aria-label={dictionary.deleteBrand}
-          >
-            <Trash2 className="h-4 w-4" />
-          </Button>
-        </div>
-      ),
-    },
-  ]
+  })
 
   return (
     <div className="space-y-6">
@@ -260,7 +197,14 @@ export default function Brands({ locale }: iProps) {
           </CardActions>
         </CardHeader>
         <CardContent className="p-0">
-          {isLoading ? (
+          {error ? (
+            <div className="text-muted-foreground flex min-h-[200px] flex-col items-center justify-center gap-3 p-8 text-center">
+              <p className="text-sm">{dictionary.messages.loadError}</p>
+              <Button variant="outline" size="sm" onClick={() => refetch()}>
+                {dictionary.messages.retry}
+              </Button>
+            </div>
+          ) : isLoading ? (
             <div className="p-4">
               <ResponsiveTable
                 data={[]}

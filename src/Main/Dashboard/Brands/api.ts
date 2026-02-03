@@ -1,7 +1,7 @@
 import { proxyFetch } from "@/lib/api/proxyFetch/proxyFetch"
 import { apiRoute } from "@/lib/routes/utils"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
-import type { iBrand, iBrandListApiResponse, iBrandRequest } from "./type"
+import type { iBrand, iBrandListApiResponse, iBrandRequest } from "./types"
 
 /**
  * Same API GET /api/brands/.
@@ -36,6 +36,7 @@ export function useGetBrands(
       if (isPaginated) return { results, count }
       return results
     },
+    placeholderData: (prev) => prev,
   })
 }
 

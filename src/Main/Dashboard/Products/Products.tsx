@@ -1,11 +1,13 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { useRouter } from "next/navigation"
 import Image from "next/image"
 import { ImageIcon, Pencil, Plus, Search, Trash2 } from "lucide-react"
 import { toast } from "sonner"
 import type { iLocale } from "@/Components/Entity/Locale/types"
+import { appRoutes } from "@/lib/routes/appRoutes"
+import { useTableUrlState } from "@/lib/hooks/useTableUrlState"
 import { getDictionary } from "./i18n"
 import { useGetProducts, useDeleteProduct } from "./api"
 import { useGetCategories } from "../Category/api"
@@ -26,8 +28,6 @@ import Card, {
 import Input from "@/Components/Shadcn/input"
 import DeleteConfirmation from "@/Components/Entity/DeleteConfirmation/DeleteConfirmation"
 import FullPagination from "@/Components/Entity/FullPagination/FullPagination"
-import { appRoutes } from "@/lib/routes/appRoutes"
-import { DEFAULT_CURRENT_PAGE } from "@/Components/Entity/FullPagination/constants"
 
 interface iProps {
   locale: iLocale
@@ -36,15 +36,14 @@ interface iProps {
 export default function Products({ locale }: iProps) {
   const dictionary = getDictionary(locale)
   const router = useRouter()
-  const [currentPage, setCurrentPage] = useState(DEFAULT_CURRENT_PAGE)
-  const [pageSize, setPageSize] = useState(10)
-  const [searchQuery, setSearchQuery] = useState("")
-  const [debouncedSearch, setDebouncedSearch] = useState("")
-
-  useEffect(() => {
-    const t = setTimeout(() => setDebouncedSearch(searchQuery), 300)
-    return () => clearTimeout(t)
-  }, [searchQuery])
+  const {
+    currentPage,
+    pageSize,
+    searchQuery,
+    debouncedSearch,
+    setSearchQuery,
+    handlePaginationChange,
+  } = useTableUrlState({ basePath: appRoutes.dashboard.products.root(locale) })
 
   const { data, isLoading } = useGetProducts(currentPage, pageSize, debouncedSearch)
   const products = data?.results ?? []
@@ -57,7 +56,6 @@ export default function Products({ locale }: iProps) {
 
   const handleSearchChange = (value: string) => {
     setSearchQuery(value)
-    setCurrentPage(DEFAULT_CURRENT_PAGE)
   }
 
   const handleConfirmDelete = async () => {
@@ -73,11 +71,6 @@ export default function Products({ locale }: iProps) {
       toast.error(errorMessage)
       throw error
     }
-  }
-
-  const handlePaginationChange = (page: number, size: number) => {
-    setCurrentPage(page)
-    setPageSize(size)
   }
 
   const columns: iResponsiveColumn<iProductListItem>[] = [
