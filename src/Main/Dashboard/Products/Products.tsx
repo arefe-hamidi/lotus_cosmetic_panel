@@ -77,10 +77,12 @@ export default function Products({ locale }: iProps) {
     {
       label: dictionary.table.photo,
       cell: ({ row }) => {
-        const src = row.main_image ?? row.image_url
+        const rawSrc = row.main_image ?? row.image_url ?? ""
+        const src = typeof rawSrc === "string" ? rawSrc.trim() : ""
+        const hasImage = src.length > 0
         return (
-          <div className="bg-muted relative h-10 w-10 shrink-0 overflow-hidden rounded-lg">
-            {src ? (
+          <div className="bg-muted relative flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-lg">
+            {hasImage ? (
               <Image
                 src={src}
                 alt={row.name}
@@ -90,9 +92,7 @@ export default function Products({ locale }: iProps) {
                 unoptimized={src.startsWith("http")}
               />
             ) : (
-              <div className="flex h-full w-full items-center justify-center">
-                <ImageIcon className="text-muted-foreground h-5 w-5" />
-              </div>
+              <ImageIcon className="text-muted-foreground h-5 w-5" aria-hidden />
             )}
           </div>
         )

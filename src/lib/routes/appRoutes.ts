@@ -20,6 +20,9 @@ export const appRoutes = {
       create: (locale: iLocale) => `/${locale}/dashboard/products/create`,
       edit: (locale: iLocale, id: number) => `/${locale}/dashboard/products/${id}/edit`,
     },
-    brands: (locale: iLocale) => `/${locale}/dashboard/brands`,
+    brands: {
+      root: (locale: iLocale) => `/${locale}/dashboard/brands`,
+      products: (locale: iLocale, id: number) => `/${locale}/dashboard/brands/${id}/products`,
+    }
   },
 } as const;

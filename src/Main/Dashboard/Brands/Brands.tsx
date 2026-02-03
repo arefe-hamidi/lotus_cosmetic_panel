@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { Plus, Search } from "lucide-react"
 import { toast } from "sonner"
 import type { iLocale } from "@/Components/Entity/Locale/types"
@@ -31,6 +32,7 @@ interface iProps {
 
 export default function Brands({ locale }: iProps) {
   const dictionary = getDictionary(locale)
+  const router = useRouter()
   const {
     currentPage,
     pageSize,
@@ -38,7 +40,7 @@ export default function Brands({ locale }: iProps) {
     debouncedSearch,
     setSearchQuery,
     handlePaginationChange,
-  } = useTableUrlState({ basePath: appRoutes.dashboard.brands(locale) })
+  } = useTableUrlState({ basePath: appRoutes.dashboard.brands.root(locale) })
 
   const { data, isLoading, error, refetch } = useGetBrands(currentPage, pageSize, debouncedSearch)
   const brands = Array.isArray(data) ? data : (data?.results ?? [])
@@ -161,12 +163,20 @@ export default function Brands({ locale }: iProps) {
     }
   }
 
+  const handleViewProducts = (brand: iBrand) => {
+    const id = brand.id
+    if (id != null && id > 0) {
+      router.push(appRoutes.dashboard.brands.products(locale, id))
+    }
+  }
+
   const columns = getBrandTableColumns(dictionary, {
     onEdit: handleOpenEdit,
     onDelete: (row) => {
       setBrandToDelete(row)
       setDeleteDialogOpen(true)
     },
+    onViewProducts: handleViewProducts,
   })
 
   return (

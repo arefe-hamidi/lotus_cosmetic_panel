@@ -1,5 +1,5 @@
 import Image from "next/image"
-import { Image as ImageIcon, Pencil, Trash2 } from "lucide-react"
+import { Image as ImageIcon, Pencil, Package, Trash2 } from "lucide-react"
 import type { iBrand } from "./types"
 import type { iDictionary } from "./i18n"
 import type { iResponsiveColumn } from "@/Components/Entity/ResponsiveTable/types"
@@ -9,6 +9,7 @@ import Button from "@/Components/Shadcn/button"
 export interface iBrandTableHandlers {
   onEdit: (brand: iBrand) => void
   onDelete: (brand: iBrand) => void
+  onViewProducts: (brand: iBrand) => void
 }
 
 export function getBrandTableColumns(
@@ -54,6 +55,15 @@ export function getBrandTableColumns(
       stickyRight: true,
       cell: ({ row }) => (
         <div className="flex items-center gap-1">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8"
+            onClick={() => handlers.onViewProducts(row)}
+            aria-label={dictionary.brandProducts.viewProducts}
+          >
+            <Package className="h-4 w-4" />
+          </Button>
           <Button
             variant="ghost"
             size="icon"

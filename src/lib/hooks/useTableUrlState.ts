@@ -72,7 +72,7 @@ function buildTableQueryString(params: {
  *
  * @example
  * const { currentPage, pageSize, searchQuery, debouncedSearch, setSearchQuery, handlePaginationChange } =
- *   useTableUrlState({ basePath: appRoutes.dashboard.brands(locale) })
+ *   useTableUrlState({ basePath: appRoutes.dashboard.brands.root(locale) })
  */
 export function useTableUrlState(
   params: iUseTableUrlStateParams

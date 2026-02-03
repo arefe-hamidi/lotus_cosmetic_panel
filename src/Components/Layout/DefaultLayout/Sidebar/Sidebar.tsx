@@ -35,7 +35,7 @@ const navItems = [
   },
   {
     title: "brands",
-    href: (locale: iLocale) => appRoutes.dashboard.brands(locale),
+    href: (locale: iLocale) => appRoutes.dashboard.brands.root(locale),
     icon: Building2,
   },
 ]
