@@ -10,18 +10,10 @@ export interface iCategory {
   updated?: string;
 }
 
-/** API wrapper for category list: { status, data } */
-export interface iCategoryListApiResponse<T> {
-  status: string;
-  data: iPaginatedResponse<T>;
-}
-
-export interface iPaginatedResponse<T> {
-  count: number;
-  next: string | null;
-  previous: string | null;
-  results: T[];
-}
+/** API response for category list: plain array or { status, data: T[] } */
+export type iCategoryListApiResponse<T> =
+  | { status?: string; data: T[] }
+  | T[];
 
 export interface iCategoryRequest {
   name: string;

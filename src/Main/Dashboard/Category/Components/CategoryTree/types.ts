@@ -20,4 +20,6 @@ export interface iCategoryTreeNodeProps {
   onDelete: (id: number) => void
   onAddChild: (parentCategory: iCategory) => void
   dictionary: iDictionary
+  /** True when this node is the last sibling (for tree connector lines) */
+  isLast?: boolean
 }

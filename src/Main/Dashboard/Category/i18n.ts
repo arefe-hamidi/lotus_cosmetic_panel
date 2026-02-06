@@ -5,6 +5,8 @@ const en = {
   title: "Categories",
   description: "Manage your product categories",
   addCategory: "Add Category",
+  addParentCategory: "Add parent category",
+  addSubcategory: "Add subcategory",
   editCategory: "Edit Category",
   deleteCategory: "Delete Category",
   table: {
@@ -37,6 +39,8 @@ const fa = {
   title: "دسته بندی ها",
   description: "مدیریت دسته بندی های محصولات",
   addCategory: "افزودن دسته بندی",
+  addParentCategory: "افزودن دسته بندی اصلی",
+  addSubcategory: "افزودن زیردسته",
   editCategory: "ویرایش دسته بندی",
   deleteCategory: "حذف دسته بندی",
   table: {

@@ -35,6 +35,8 @@ export default function CategoryTree({
     }
   }
 
+  const treeData = useMemo(() => buildCategoryTree(categories || []), [categories])
+
   if (isLoading) {
     return (
       <div className="space-y-2">
@@ -53,21 +55,11 @@ export default function CategoryTree({
     )
   }
 
-  const treeData = useMemo(() => buildCategoryTree(categories || []), [categories])
-
-  const defaultExpanded = useMemo(
-    () =>
-      treeData
-        .map((cat) => (cat.id ? cat.id : `category-${cat.name}`))
-        .filter((id): id is string | number => Boolean(id)) as (string | number)[],
-    [treeData]
-  )
-
   return (
     <>
-      <div className="border rounded-lg p-2">
-        <Tree defaultExpanded={defaultExpanded}>
-          {treeData.map((category) => (
+      <div className="border rounded-lg p-2 bg-background">
+        <Tree defaultExpanded={[]} showLines>
+          {treeData.map((category, index) => (
             <CategoryTreeNode
               key={category.id}
               category={category}
@@ -75,6 +67,7 @@ export default function CategoryTree({
               onDelete={handleDeleteClick}
               onAddChild={onAddChild}
               dictionary={dictionary}
+              isLast={index === treeData.length - 1}
             />
           ))}
         </Tree>

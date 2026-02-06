@@ -14,14 +14,7 @@ import {
 } from "@/Components/Shadcn/sheet";
 import Input from "@/Components/Shadcn/input";
 import Label from "@/Components/Shadcn/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/Components/Shadcn/select";
-import { CategoryFormSearchableSelect } from "./CategoryFormSearchableSelect";
+import { Switch } from "@/Components/Shadcn/switch";
 
 interface iProps {
   isOpen: boolean;
@@ -34,7 +27,16 @@ interface iProps {
   locale: iLocale;
   categories: iCategory[] | undefined;
   isPending: boolean;
-  lockedParent?: number | null;
+}
+
+function getSheetTitle(
+  editingCategory: iCategory | null,
+  parentId: number | null,
+  dictionary: iDictionary
+): string {
+  if (editingCategory) return dictionary.editCategory;
+  if (parentId != null) return dictionary.addSubcategory;
+  return dictionary.addParentCategory;
 }
 
 export default function CategoryForm({
@@ -48,18 +50,33 @@ export default function CategoryForm({
   locale,
   categories,
   isPending,
-  lockedParent,
 }: iProps) {
+  const parentCategory =
+    formData.parent != null
+      ? categories?.find((c) => c.id === formData.parent)
+      : null
+  const showParentField = !editingCategory && formData.parent != null
+
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
       <SheetContent side={locale === "fa" ? "left" : "right"}>
         <SheetHeader>
           <SheetTitle>
-            {editingCategory ? dictionary.editCategory : dictionary.addCategory}
+            {getSheetTitle(editingCategory, formData.parent, dictionary)}
           </SheetTitle>
           <SheetDescription>{dictionary.description}</SheetDescription>
         </SheetHeader>
         <form onSubmit={onSubmit} className="space-y-4 py-4">
+          {showParentField && (
+            <div className="space-y-2">
+              <Label>{dictionary.form.parent}</Label>
+              <Input
+                readOnly
+                value={parentCategory?.name ?? ""}
+                className="bg-muted cursor-default"
+              />
+            </div>
+          )}
           <div className="space-y-2">
             <Label htmlFor="name">{dictionary.form.name}</Label>
             <Input
@@ -70,29 +87,6 @@ export default function CategoryForm({
               }
               required
             />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="parent">{dictionary.form.parent}</Label>
-            <CategoryFormSearchableSelect
-              value={formData.parent}
-              onChange={(parentId) =>
-                setFormData({
-                  ...formData,
-                  parent: parentId,
-                })
-              }
-              disabled={lockedParent !== undefined}
-              placeholder={dictionary.form.parent}
-              excludeId={editingCategory?.id}
-              selectedCategory={
-                categories?.find((c) => c.id === formData.parent) || null
-              }
-            />
-            {lockedParent !== undefined && (
-              <p className="text-xs text-muted-foreground">
-                Parent category is locked and cannot be changed.
-              </p>
-            )}
           </div>
           <div className="space-y-2">
             <Label htmlFor="icon">{dictionary.form.icon}</Label>
@@ -119,22 +113,17 @@ export default function CategoryForm({
               required
             />
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="is_active">{dictionary.form.isActive}</Label>
-            <Select
-              value={formData.is_active.toString()}
-              onValueChange={(value) =>
-                setFormData({ ...formData, is_active: value === "true" })
+          <div className="flex items-center justify-between space-y-0 gap-2">
+            <Label htmlFor="is_active" className="flex-1">
+              {dictionary.form.isActive}
+            </Label>
+            <Switch
+              id="is_active"
+              checked={formData.is_active}
+              onCheckedChange={(checked) =>
+                setFormData({ ...formData, is_active: checked })
               }
-            >
-              <SelectTrigger id="is_active">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="true">Active</SelectItem>
-                <SelectItem value="false">Inactive</SelectItem>
-              </SelectContent>
-            </Select>
+            />
           </div>
           <div className="flex justify-end gap-2 pt-4">
             <Button

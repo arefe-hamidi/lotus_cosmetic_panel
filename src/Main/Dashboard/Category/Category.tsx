@@ -141,9 +141,7 @@ export default function Category({ locale }: iProps) {
         isOpen={isOpen}
         setIsOpen={(open) => {
           setIsOpen(open);
-          if (!open) {
-            setLockedParent(undefined);
-          }
+          if (!open) setLockedParent(undefined);
         }}
         editingCategory={editingCategory}
         formData={formData}
@@ -153,7 +151,6 @@ export default function Category({ locale }: iProps) {
         locale={locale}
         categories={categories}
         isPending={createMutation.isPending || updateMutation.isPending}
-        lockedParent={lockedParent}
       />
 
     

@@ -13,7 +13,10 @@ export function useGetCategories() {
       if (res.status === 404) return [];
       if (!res.ok) throw res;
       const body = (await res.json()) as iCategoryListApiResponse<iCategory> | undefined;
-      return body?.data?.results ?? [];
+      if (Array.isArray(body)) return body;
+      const data = body?.data;
+      if (Array.isArray(data)) return data;
+      return [];
     },
   });
 }
@@ -81,7 +84,8 @@ export function useSearchCategories(query: string, limit: number = 20) {
       const res = await proxyFetch(endpoint);
       if (!res.ok) throw res;
       const body = (await res.json()) as iCategoryListApiResponse<iCategory>;
-      return body.data.results;
+      if (Array.isArray(body)) return body;
+      return Array.isArray(body?.data) ? body.data : [];
     },
     enabled: query.trim().length > 0,
   });
